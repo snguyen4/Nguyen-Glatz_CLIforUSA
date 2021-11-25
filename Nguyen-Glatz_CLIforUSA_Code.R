@@ -18,7 +18,7 @@ source("UserPackages.R")
 
 #To save files + graphs
 mainDir <- getwd()
-outDir <- makeOutDir(mainDir, "/ResultsApp3")
+outDir <- makeOutDir(mainDir, "/ResultsCLIforUSA")
 
 
 #Loading GDP growth from FRED + transformation to a times series
