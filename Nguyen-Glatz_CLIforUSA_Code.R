@@ -23,7 +23,7 @@ outDir <- makeOutDir(mainDir, "/ResultsApp3")
 
 #Loading GDP growth from FRED + transformation to a times series
 GDP = ts_fred('A191RL1Q225SBEA')
-GDP = xts(GDP[,3], order.by=as.Date(GDP[,2]))
+GDP = xts(GDP[,3], order.by = as.Date(GDP[,2]))
 print(paste("End of GDP", ts_summary(GDP)$end, sep = ": "))
 
 #Plotting GDP growth
