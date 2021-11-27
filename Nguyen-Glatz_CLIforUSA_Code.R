@@ -43,6 +43,13 @@ ts_ggplot(log(IP))
 #Plotting month on month growth rates. Roughly similar to first log-differences.
 ts_ggplot(ts_pc(IP))
 
+# Shorten all series to start in 1980-01-01
+myStart = "1980-01-01"
+
+IP  = ts_span(IP, start = myStart)
+GDP  = ts_span(GDP, start = myStart)
+
+
 #Augmented Dickey-FUller test. First one clearly non-stationary. Log differences stationary.
 uRootIP = CADFtest(log(IP), max.lag.y = 10, type = "trend", criterion = "BIC")
 summary(uRootIP)
@@ -53,6 +60,8 @@ summary(uRootIPd)
 #Making IP stationary
 dIP = ts_diff(log(IP))
 
+ts_ggplot(dIP)
+
 #Examine lead-lag with CCF. Coincident indicator.
 dIPq = ts_frequency(dIP, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p <- plotCCF(ts_ts(dIPq), ts_ts(GDP), lag.max = 15)
@@ -60,11 +69,12 @@ p <- ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Cross-correlation between industrial production and GDP growth", subtitle = "Quarterly")
 p
 
-#Pre-whitening data
+#Pre-whitening data. Lead of one quarter.
 ModelGDP <- auto.arima(GDP, max.p = 5, max.q = 5, ic = c("bic"))
 ModeldIP  <- auto.arima(dIPq, max.p = 5, max.q = 5, ic = c("bic"))
 p <- plotCCF(ts_ts(resid(ModeldIP)), ts_ts(resid(ModelGDP)), lag.max = 15)
 p <- ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between industrial production and GDP growth", subtitle = "Quarterly")
 p
+
 
