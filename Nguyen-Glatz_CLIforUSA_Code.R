@@ -22,8 +22,8 @@ rm(list=ls())
 source("UserPackages.R")
 
 #To save files + graphs
-mainDir <- getwd()
-outDir <- makeOutDir(mainDir, "/ResultsCLIforUSA")
+mainDir = getwd()
+outDir = makeOutDir(mainDir, "/ResultsCLIforUSA")
 
 
 #2) Loading data/Data transformation -------------------------------------------
@@ -122,58 +122,58 @@ ts_ggplot(dPCE)
 
 #Examine lead-lag with CCF. Coincident indicator. IP
 dIPq = ts_frequency(dIP, to = "quarter", aggregate= "mean", na.rm = TRUE)
-p <- plotCCF(ts_ts(dIPq), ts_ts(GDP), lag.max = 15)
-p <- ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+p = plotCCF(ts_ts(dIPq), ts_ts(GDP), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Cross-correlation between industrial production and GDP growth", subtitle = "Quarterly")
 p
 
 #Pre-whitening data. Lead of one quarter.
-ModelGDP <- auto.arima(GDP, max.p = 5, max.q = 5, ic = c("bic"))
-ModeldIP  <- auto.arima(dIPq, max.p = 5, max.q = 5, ic = c("bic"))
-p <- plotCCF(ts_ts(resid(ModeldIP)), ts_ts(resid(ModelGDP)), lag.max = 15)
-p <- ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+ModelGDP = auto.arima(GDP, max.p = 5, max.q = 5, ic = c("bic"))
+ModeldIP  = auto.arima(dIPq, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(ModeldIP)), ts_ts(resid(ModelGDP)), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between industrial production and GDP growth", subtitle = "Quarterly")
 p
 
 #Examine lead-lag with CCF. Coincident indicator. IP non-durable goods
 dIPNCCONGDq = ts_frequency(dIPNCCONGD, to = "quarter", aggregate= "mean", na.rm = TRUE)
-p <- plotCCF(ts_ts(dIPNCCONGDq), ts_ts(GDP), lag.max = 15)
-p <- ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+p = plotCCF(ts_ts(dIPNCCONGDq), ts_ts(GDP), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Cross-correlation between industrial production: non-durable goods and GDP growth", subtitle = "Quarterly")
 p
 
 #Pre-whitening data. Lead of one quarter. Lagging one quarter
-ModeldIPNCONGD  <- auto.arima(dIPNCCONGDq, max.p = 5, max.q = 5, ic = c("bic"))
-p <- plotCCF(ts_ts(resid(ModeldIPNCONGD)), ts_ts(resid(ModelGDP)), lag.max = 15)
-p <- ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+ModeldIPNCONGD  = auto.arima(dIPNCCONGDq, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(ModeldIPNCONGD)), ts_ts(resid(ModelGDP)), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between industrial production: non-durable goods and GDP growth", subtitle = "Quarterly")
 p
 
 #Examine lead-lag with CCF. Coincident indicator. PCE
 dPCEq = ts_frequency(dPCE, to = "quarter", aggregate= "mean", na.rm = TRUE)
-p <- plotCCF(ts_ts(dPCEq), ts_ts(GDP), lag.max = 15)
-p <- ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+p = plotCCF(ts_ts(dPCEq), ts_ts(GDP), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Cross-correlation between PCE and GDP growth", subtitle = "Quarterly")
 p
 
 #Pre-whitening data. Lead of one quarter. Leading one quarter.
-ModeldPCE  <- auto.arima(dPCEq, max.p = 5, max.q = 5, ic = c("bic"))
-p <- plotCCF(ts_ts(resid(ModeldPCE)), ts_ts(resid(ModelGDP)), lag.max = 15)
-p <- ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+ModeldPCE  = auto.arima(dPCEq, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(ModeldPCE)), ts_ts(resid(ModelGDP)), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between PCE and GDP growth", subtitle = "Quarterly")
 p
 
 #Examine lead-lag with CCF. Coincident indicator. TLP
 TLPq = ts_frequency(TLP, to = "quarter", aggregate= "mean", na.rm = TRUE)
-p <- plotCCF(ts_ts(TLPq), ts_ts(GDP), lag.max = 15)
-p <- ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+p = plotCCF(ts_ts(TLPq), ts_ts(GDP), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Cross-correlation between TLP and GDP growth", subtitle = "Quarterly")
 p
 
 #Pre-whitening data. 
-ModelTLP  <- auto.arima(TLPq, max.p = 5, max.q = 5, ic = c("bic"))
-p <- plotCCF(ts_ts(resid(ModelTLP)), ts_ts(resid(ModelGDP)), lag.max = 15)
-p <- ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+ModelTLP  = auto.arima(TLPq, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(ModelTLP)), ts_ts(resid(ModelGDP)), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between TLP and GDP growth", subtitle = "Quarterly")
 p
 
