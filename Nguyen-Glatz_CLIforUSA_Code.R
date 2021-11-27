@@ -1,5 +1,8 @@
 #CLI for USA construction using FRED data
 
+#1) Setting up -----------------------------------------------------------------
+#-------------------------------------------------------------------------------
+
 #Loading needed libraries
 library(tsbox)
 library(quantmod)
@@ -23,6 +26,9 @@ mainDir <- getwd()
 outDir <- makeOutDir(mainDir, "/ResultsCLIforUSA")
 
 
+#2) Loading data/Data transformation -------------------------------------------
+#-------------------------------------------------------------------------------
+  
 #Loading GDP growth from FRED + transformation to a times series
 GDP = ts_fred("A191RL1Q225SBEA")
 GDP = xts(GDP[,3], order.by = as.Date(GDP[,2]))
@@ -47,6 +53,11 @@ PCE = ts_fred('PCE')
 PCE = xts(PCE[, 3], order.by = as.Date(PCE[, 2]))
 print(paste("End of PCE", ts_summary(IP)$end, sep = ": "))
 
+#Early Estimate of Quarterly ULC Indicators: Total Labor Productivity for the United States
+TLP = ts_fred('ULQELP01USQ657S')
+TLP = xts(TLP[, 3], order.by = as.Date(TLP[, 2]))
+print(paste("End of TLP", ts_summary(TLP)$end, sep = ": "))
+
 
 #Plotting Industrial production. We can see that it is not stationary
 ts_ggplot(log(IP))
@@ -56,6 +67,9 @@ ts_ggplot(log(IPNCCONGD))
 
 #Plotting PCE
 ts_ggplot(log(PCE))
+
+#Plotting TLP
+ts_ggplot(TLP)
 
 #Plotting month on month growth rates. Roughly similar to first log-differences.
 ts_ggplot(ts_pc(IP))
@@ -69,6 +83,10 @@ IP  = ts_span(IP, start = myStart)
 GDP  = ts_span(GDP, start = myStart)
 IPNCCONGD = ts_span(IPNCCONGD, start = myStart)
 PCE = ts_span(PCE, start = myStart)
+TLP = ts_span(TLP, start = myStart)
+
+#3) Making series with a trend stationary --------------------------------------
+#-------------------------------------------------------------------------------
 
 #Augmented Dickey-FUller test. First one clearly non-stationary. Log differences stationary.
 uRootIP = CADFtest(log(IP), max.lag.y = 10, type = "trend", criterion = "BIC")
@@ -99,6 +117,9 @@ ts_ggplot(dIPNCCONGD)
 dPCE = ts_diff(log(PCE))
 ts_ggplot(dPCE)
 
+#4) CCF and pre-whitening ------------------------------------------------------
+#-------------------------------------------------------------------------------
+
 #Examine lead-lag with CCF. Coincident indicator. IP
 dIPq = ts_frequency(dIP, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p <- plotCCF(ts_ts(dIPq), ts_ts(GDP), lag.max = 15)
@@ -113,7 +134,6 @@ p <- plotCCF(ts_ts(resid(ModeldIP)), ts_ts(resid(ModelGDP)), lag.max = 15)
 p <- ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between industrial production and GDP growth", subtitle = "Quarterly")
 p
-
 
 #Examine lead-lag with CCF. Coincident indicator. IP non-durable goods
 dIPNCCONGDq = ts_frequency(dIPNCCONGD, to = "quarter", aggregate= "mean", na.rm = TRUE)
@@ -143,4 +163,17 @@ p <- ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between PCE and GDP growth", subtitle = "Quarterly")
 p
 
+#Examine lead-lag with CCF. Coincident indicator. TLP
+TLPq = ts_frequency(TLP, to = "quarter", aggregate= "mean", na.rm = TRUE)
+p <- plotCCF(ts_ts(TLPq), ts_ts(GDP), lag.max = 15)
+p <- ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Cross-correlation between TLP and GDP growth", subtitle = "Quarterly")
+p
+
+#Pre-whitening data. 
+ModelTLP  <- auto.arima(TLPq, max.p = 5, max.q = 5, ic = c("bic"))
+p <- plotCCF(ts_ts(resid(ModelTLP)), ts_ts(resid(ModelGDP)), lag.max = 15)
+p <- ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Pre-whitened Cross-correlation between TLP and GDP growth", subtitle = "Quarterly")
+p
 
