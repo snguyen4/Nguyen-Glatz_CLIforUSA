@@ -86,9 +86,6 @@ SP = xts(SP[, 3], order.by = as.Date(SP[, 2]))
 #Plotting Industrial production. We can see that it is not stationary
 ts_ggplot(log(IP))
 
-#Plotting IPNCCONGD
-ts_ggplot(log(IPNCCONGD))
-
 #Plotting PCE
 ts_ggplot(log(PCE))
 
@@ -113,19 +110,21 @@ ts_ggplot(SP)
 # #Plotting TCS
 # ts_ggplot(TCS)
 
+# #Plotting IPNCCONGD
+# ts_ggplot(log(IPNCCONGD))
+
 #Plotting month on month growth rates if it has a trend. Roughly similar to first log-differences.
 ts_ggplot(ts_pc(IP))
-ts_ggplot(ts_pc(IPNCCONGD))
 ts_ggplot(ts_pc(PCE))
-# ts_ggplot(ts_pc(TM))
+ts_ggplot(ts_pc(TM))
 # ts_ggplot(ts_pc(TCS))
+# ts_ggplot(ts_pc(IPNCCONGD))
 
 # Shorten all series to start in xxxx-xx-xx
 myStart = "1992-01-01"
 
 IP  = ts_span(IP, start = myStart)
 GDP  = ts_span(GDP, start = myStart)
-IPNCCONGD = ts_span(IPNCCONGD, start = myStart)
 PCE = ts_span(PCE, start = myStart)
 TLP = ts_span(TLP, start = myStart)
 TM = ts_span(TM, start = myStart)
@@ -134,6 +133,7 @@ SP = ts_span(TS, start = myStart)
 # BTS = ts_span(BTS, start = myStart)
 # OB = ts_span(OB, start = myStart)
 # TCS = ts_span(TCS, start = myStart)
+# IPNCCONGD = ts_span(IPNCCONGD, start = myStart)
 
 #3) Making series with a trend stationary --------------------------------------
 #-------------------------------------------------------------------------------
@@ -144,12 +144,6 @@ summary(uRootIP)
 
 uRootIPd = CADFtest(ts_diff(log(IP)), max.lag.y = 10, type = "drift", criterion = "BIC")
 summary(uRootIPd)
-
-uRootIPNCCONGD = CADFtest(log(IPNCCONGD), max.lag.y = 10, type = "trend", criterion = "BIC")
-summary(uRootIPNCCONGD)
-
-uRootIPNCCONGDd = CADFtest(ts_diff(log(IPNCCONGD)), max.lag.y = 10, type = "drift", criterion = "BIC")
-summary(uRootIPNCCONGDd)
 
 uRootPCE = CADFtest(log(PCE), max.lag.y = 10, type = "trend", criterion = "BIC")
 summary(uRootPCE)
@@ -162,6 +156,12 @@ summary(uRootTM)
 
 uRootTMd = CADFtest(ts_diff(log(TM)), max.lag.y = 10, type = "drift", criterion = "BIC")
 summary(uRootTMd)
+
+# uRootIPNCCONGD = CADFtest(log(IPNCCONGD), max.lag.y = 10, type = "trend", criterion = "BIC")
+# summary(uRootIPNCCONGD)
+# 
+# uRootIPNCCONGDd = CADFtest(ts_diff(log(IPNCCONGD)), max.lag.y = 10, type = "drift", criterion = "BIC")
+# summary(uRootIPNCCONGDd)
 
 # uRootCOS = CADFtest(COS, max.lag.y = 10, type = "drift", criterion = "BIC")
 # summary(uRootCOS)
@@ -176,14 +176,14 @@ summary(uRootTMd)
 dIP = ts_diff(log(IP))
 ts_ggplot(dIP)
 
-dIPNCCONGD = ts_diff(log(IPNCCONGD))
-ts_ggplot(dIPNCCONGD)
-
 dPCE = ts_diff(log(PCE))
 ts_ggplot(dPCE)
 
 dTM = ts_diff(log(TM))
 ts_ggplot(dTM)
+
+# dIPNCCONGD = ts_diff(log(IPNCCONGD))
+# ts_ggplot(dIPNCCONGD)
 
 # dTCS = ts_diff(log(TCS))
 # ts_ggplot(dTCS)
@@ -204,20 +204,6 @@ ModeldIP  = auto.arima(dIPq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModeldIP)), ts_ts(resid(ModelGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between industrial production and GDP growth", subtitle = "Quarterly")
-p
-
-#Examine lead-lag with CCF. IP non-durable goods
-dIPNCCONGDq = ts_frequency(dIPNCCONGD, to = "quarter", aggregate= "mean", na.rm = TRUE)
-p = plotCCF(ts_ts(dIPNCCONGDq), ts_ts(GDP), lag.max = 15)
-p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Cross-correlation between industrial production: non-durable goods and GDP growth", subtitle = "Quarterly")
-p
-
-#Pre-whitening data. Lead of one quarter. Lagging one quarter
-ModeldIPNCONGD  = auto.arima(dIPNCCONGDq, max.p = 5, max.q = 5, ic = c("bic"))
-p = plotCCF(ts_ts(resid(ModeldIPNCONGD)), ts_ts(resid(ModelGDP)), lag.max = 15)
-p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between industrial production: non-durable goods and GDP growth", subtitle = "Quarterly")
 p
 
 #Examine lead-lag with CCF.PCE
@@ -276,8 +262,6 @@ p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between SP and GDP growth", subtitle = "Quarterly")
 p
 
-
-
 # #Examine lead-lag with CCF. Coincident indicator. TLP
 # COSq = ts_frequency(COS, to = "quarter", aggregate= "mean", na.rm = TRUE)
 # p = plotCCF(ts_ts(COSq), ts_ts(GDP), lag.max = 15)
@@ -335,5 +319,20 @@ p
 # p = plotCCF(ts_ts(resid(dModelTCS)), ts_ts(resid(ModelGDP)), lag.max = 15)
 # p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
 #   labs(title = "Pre-whitened Cross-correlation between TCS and GDP growth", subtitle = "Quarterly")
+# p
+
+
+# #Examine lead-lag with CCF. IP non-durable goods
+# dIPNCCONGDq = ts_frequency(dIPNCCONGD, to = "quarter", aggregate= "mean", na.rm = TRUE)
+# p = plotCCF(ts_ts(dIPNCCONGDq), ts_ts(GDP), lag.max = 15)
+# p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+#   labs(title = "Cross-correlation between industrial production: non-durable goods and GDP growth", subtitle = "Quarterly")
+# p
+# 
+# #Pre-whitening data. Lead of one quarter. Lagging one quarter
+# ModeldIPNCONGD  = auto.arima(dIPNCCONGDq, max.p = 5, max.q = 5, ic = c("bic"))
+# p = plotCCF(ts_ts(resid(ModeldIPNCONGD)), ts_ts(resid(ModelGDP)), lag.max = 15)
+# p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+#   labs(title = "Pre-whitened Cross-correlation between industrial production: non-durable goods and GDP growth", subtitle = "Quarterly")
 # p
 
