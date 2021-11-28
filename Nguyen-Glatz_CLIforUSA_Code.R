@@ -63,6 +63,11 @@ TM = ts_fred("AMTMNO")
 TM = xts(TM[, 3], order.by = as.Date(TM[, 2]))
 print(paste("End of TM", ts_summary(TM)$end, sep = ": "))
 
+#Consumer Opinion Surveys: Confidence Indicators: Composite Indicators: OECD Indicator for the United States
+COS = ts_fred("CSCICP03USM665S")
+COS = xts(COS[, 3], order.by = as.Date(COS[, 2]))
+print(paste("End of COS", ts_summary(TM)$end, sep = ": "))
+
 # #Business Tendency Surveys for Manufacturing: Confidence Indicators: Composite Indicators: OECD Indicator for the United States
 # BTS = ts_fred("BSCICP03USM665S")
 # BTS = xts(BTS[, 3], order.by = as.Date(BTS[, 2]))
@@ -94,6 +99,9 @@ ts_ggplot(TLP)
 #Plotting TM
 ts_ggplot(log(TM))
 
+#Plotting COS
+ts_ggplot(COS)
+
 # #Plotting BTS
 # ts_ggplot(BTS)
 
@@ -119,6 +127,7 @@ IPNCCONGD = ts_span(IPNCCONGD, start = myStart)
 PCE = ts_span(PCE, start = myStart)
 TLP = ts_span(TLP, start = myStart)
 TM = ts_span(TM, start = myStart)
+COS = ts_span(COS, start = myStart)
 # BTS = ts_span(BTS, start = myStart)
 # OB = ts_span(OB, start = myStart)
 # TCS = ts_span(TCS, start = myStart)
@@ -150,6 +159,9 @@ summary(uRootTM)
 
 uRootTMd = CADFtest(ts_diff(log(TM)), max.lag.y = 10, type = "drift", criterion = "BIC")
 summary(uRootTMd)
+
+uRootCOS = CADFtest(COS, max.lag.y = 10, type = "drift", criterion = "BIC")
+summary(uRootCOS)
 
 # uRootTCS = CADFtest(log(TCS), max.lag.y = 10, type = "trend", criterion = "BIC")
 # summary(uRootTCS)
@@ -246,6 +258,21 @@ p = plotCCF(ts_ts(resid(ModeldTM)), ts_ts(resid(ModelGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between TM and GDP growth", subtitle = "Quarterly")
 p
+
+#Examine lead-lag with CCF. Coincident indicator. TLP
+COSq = ts_frequency(COS, to = "quarter", aggregate= "mean", na.rm = TRUE)
+p = plotCCF(ts_ts(COSq), ts_ts(GDP), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Cross-correlation between COS and GDP growth", subtitle = "Quarterly")
+p
+
+#Pre-whitening data. Lagging 4 quarters.
+ModelCOS  = auto.arima(COSq, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(ModelCOS)), ts_ts(resid(ModelGDP)), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Pre-whitened Cross-correlation between COS and GDP growth", subtitle = "Quarterly")
+p
+
 
 # #Examine lead-lag with CCF. Coincident indicator. BTS
 # BTSq = ts_frequency(BTS, to = "quarter", aggregate= "mean", na.rm = TRUE)
