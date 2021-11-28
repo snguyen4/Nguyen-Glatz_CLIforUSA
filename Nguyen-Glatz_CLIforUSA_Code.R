@@ -51,17 +51,27 @@ print(paste("End of IPNCCONGD", ts_summary(IPNCCONGD)$end, sep = ": "))
 #Personal Consumption Expenditures
 PCE = ts_fred("PCE")
 PCE = xts(PCE[, 3], order.by = as.Date(PCE[, 2]))
-print(paste("End of PCE", ts_summary(IP)$end, sep = ": "))
+print(paste("End of PCE", ts_summary(PCE)$end, sep = ": "))
 
 #Early Estimate of Quarterly ULC Indicators: Total Labor Productivity for the United States
 TLP = ts_fred("ULQELP01USQ657S")
 TLP = xts(TLP[, 3], order.by = as.Date(TLP[, 2]))
 print(paste("End of TLP", ts_summary(TLP)$end, sep = ": "))
 
-#Business Tendency Surveys for Manufacturing: Export Order Books or Demand: Level: European Commission Indicator for the United States
-OB = ts_fred("BSXRLV02USM086S")
-OB = xts(OB[, 3], order.by = as.array.default(OB[, 2]))
-print(paste("End of OB", ts_summary(TLP)$end, sep = ": "))
+#Manufacturers' New Orders: Total Manufacturing
+TM = ts_fred("AMTMNO")
+TM = xts(TM[, 3], order.by = as.Date(TM[, 2]))
+print(paste("End of TM", ts_summary(TM)$end, sep = ": "))
+
+# #Business Tendency Surveys for Manufacturing: Confidence Indicators: Composite Indicators: OECD Indicator for the United States
+# BTS = ts_fred("BSCICP03USM665S")
+# BTS = xts(BTS[, 3], order.by = as.Date(BTS[, 2]))
+# print(paste("End of BTS", ts_summary(BTS)$end, sep = ": "))
+
+# #Business Tendency Surveys for Manufacturing: Export Order Books or Demand: Level: European Commission Indicator for the United States
+# OB = ts_fred("BSXRLV02USM086S")
+# OB = xts(OB[, 3], order.by = as.array.default(OB[, 2]))
+# print(paste("End of OB", ts_summary(TLP)$end, sep = ": "))
 
 # #Total construction spending
 # TCS = ts_fred("TTLCONS")
@@ -81,8 +91,14 @@ ts_ggplot(log(PCE))
 #Plotting TLP
 ts_ggplot(TLP)
 
-#Plotting OB
-ts_ggplot(OB)
+#Plotting TM
+ts_ggplot(log(TM))
+
+# #Plotting BTS
+# ts_ggplot(BTS)
+
+# #Plotting OB
+# ts_ggplot(OB)
 
 # #Plotting TCS
 # ts_ggplot(TCS)
@@ -91,17 +107,20 @@ ts_ggplot(OB)
 ts_ggplot(ts_pc(IP))
 ts_ggplot(ts_pc(IPNCCONGD))
 ts_ggplot(ts_pc(PCE))
+# ts_ggplot(ts_pc(TM))
 # ts_ggplot(ts_pc(TCS))
 
-# Shorten all series to start in 1980-01-01
-myStart = "1990-01-01"
+# Shorten all series to start in xxxx-xx-xx
+myStart = "1992-01-01"
 
 IP  = ts_span(IP, start = myStart)
 GDP  = ts_span(GDP, start = myStart)
 IPNCCONGD = ts_span(IPNCCONGD, start = myStart)
 PCE = ts_span(PCE, start = myStart)
 TLP = ts_span(TLP, start = myStart)
-OB = ts_span(OB, start = myStart)
+TM = ts_span(TM, start = myStart)
+# BTS = ts_span(BTS, start = myStart)
+# OB = ts_span(OB, start = myStart)
 # TCS = ts_span(TCS, start = myStart)
 
 #3) Making series with a trend stationary --------------------------------------
@@ -126,6 +145,12 @@ summary(uRootPCE)
 uRootPCEd = CADFtest(ts_diff(log(PCE)), max.lag.y = 10, type = "drift", criterion = "BIC")
 summary(uRootPCEd)
 
+uRootTM = CADFtest(log(TM), max.lag.y = 10, type = "trend", criterion = "BIC")
+summary(uRootTM)
+
+uRootTMd = CADFtest(ts_diff(log(TM)), max.lag.y = 10, type = "drift", criterion = "BIC")
+summary(uRootTMd)
+
 # uRootTCS = CADFtest(log(TCS), max.lag.y = 10, type = "trend", criterion = "BIC")
 # summary(uRootTCS)
 # 
@@ -141,6 +166,9 @@ ts_ggplot(dIPNCCONGD)
 
 dPCE = ts_diff(log(PCE))
 ts_ggplot(dPCE)
+
+dTM = ts_diff(log(TM))
+ts_ggplot(dTM)
 
 # dTCS = ts_diff(log(TCS))
 # ts_ggplot(dTCS)
@@ -205,19 +233,50 @@ p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between TLP and GDP growth", subtitle = "Quarterly")
 p
 
-#Examine lead-lag with CCF. Coincident indicator. OB
-OBq = ts_frequency(OB, to = "quarter", aggregate= "mean", na.rm = TRUE)
-p = plotCCF(ts_ts(OBq), ts_ts(GDP), lag.max = 15)
+#Examine lead-lag with CCF. Coincident indicator. TM
+dTMq = ts_frequency(dTM, to = "quarter", aggregate= "mean", na.rm = TRUE)
+p = plotCCF(ts_ts(dTMq), ts_ts(GDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Cross-correlation between OB and GDP growth", subtitle = "Quarterly")
+  labs(title = "Cross-correlation between industrial production and GDP growth", subtitle = "Quarterly")
 p
 
-#Pre-whitening data. Lag of one quarter. No lead.
-ModelOB  = auto.arima(OBq, max.p = 5, max.q = 5, ic = c("bic"))
-p = plotCCF(ts_ts(resid(ModelOB)), ts_ts(resid(ModelGDP)), lag.max = 15)
+#Pre-whitening data. Lead of one quarter.
+ModeldTM  = auto.arima(dTMq, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(ModeldTM)), ts_ts(resid(ModelGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between OB and GDP growth", subtitle = "Quarterly")
+  labs(title = "Pre-whitened Cross-correlation between TM and GDP growth", subtitle = "Quarterly")
 p
+
+# #Examine lead-lag with CCF. Coincident indicator. BTS
+# BTSq = ts_frequency(BTS, to = "quarter", aggregate= "mean", na.rm = TRUE)
+# p = plotCCF(ts_ts(BTSq), ts_ts(GDP), lag.max = 15)
+# p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+#   labs(title = "Cross-correlation between BTS and GDP growth", subtitle = "Quarterly")
+# p
+# 
+# #Pre-whitening data. No lead
+# ModelBTS  = auto.arima(BTSq, max.p = 5, max.q = 5, ic = c("bic"))
+# p = plotCCF(ts_ts(resid(ModelBTS)), ts_ts(resid(ModelGDP)), lag.max = 15)
+# p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+#   labs(title = "Pre-whitened Cross-correlation between BTS and GDP growth", subtitle = "Quarterly")
+# p
+
+
+
+
+# #Examine lead-lag with CCF. Coincident indicator. OB
+# OBq = ts_frequency(OB, to = "quarter", aggregate= "mean", na.rm = TRUE)
+# p = plotCCF(ts_ts(OBq), ts_ts(GDP), lag.max = 15)
+# p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+#   labs(title = "Cross-correlation between OB and GDP growth", subtitle = "Quarterly")
+# p
+# 
+# #Pre-whitening data. Lag of one quarter. No lead.
+# ModelOB  = auto.arima(OBq, max.p = 5, max.q = 5, ic = c("bic"))
+# p = plotCCF(ts_ts(resid(ModelOB)), ts_ts(resid(ModelGDP)), lag.max = 15)
+# p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+#   labs(title = "Pre-whitened Cross-correlation between OB and GDP growth", subtitle = "Quarterly")
+# p
 
 
 
