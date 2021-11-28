@@ -14,6 +14,7 @@ library(forecast)
 library(gridExtra)
 library(xts)
 library(CADFtest) 
+library(seasonal)
 
 #Reset
 rm(list=ls())
@@ -32,7 +33,6 @@ outDir = makeOutDir(mainDir, "/ResultsCLIforUSA")
 #Loading GDP growth from FRED + transformation to a times series
 GDP = ts_fred("A191RL1Q225SBEA")
 GDP = xts(GDP[,3], order.by = as.Date(GDP[,2]))
-print(paste("End of GDP", ts_summary(GDP)$end, sep = ": "))
 
 #Plotting GDP growth
 ts_ggplot(GDP)
@@ -41,32 +41,31 @@ ts_ggplot(GDP)
 #Industrial production
 IP = ts_fred("IPTB56300S")
 IP = xts(IP[, 3], order.by = as.Date(IP[, 2]))
-print(paste("End of IP", ts_summary(IP)$end, sep = ": "))
 
 #Industrial production: Non-durable consumer goods
 IPNCCONGD = ts_fred("IPNCONGD")
 IPNCCONGD = xts(IPNCCONGD[, 3], order.by = as.Date(IPNCCONGD[, 2]))
-print(paste("End of IPNCCONGD", ts_summary(IPNCCONGD)$end, sep = ": "))
 
 #Personal Consumption Expenditures
 PCE = ts_fred("PCE")
 PCE = xts(PCE[, 3], order.by = as.Date(PCE[, 2]))
-print(paste("End of PCE", ts_summary(PCE)$end, sep = ": "))
 
 #Early Estimate of Quarterly ULC Indicators: Total Labor Productivity for the United States
 TLP = ts_fred("ULQELP01USQ657S")
 TLP = xts(TLP[, 3], order.by = as.Date(TLP[, 2]))
-print(paste("End of TLP", ts_summary(TLP)$end, sep = ": "))
 
 #Manufacturers' New Orders: Total Manufacturing
 TM = ts_fred("AMTMNO")
 TM = xts(TM[, 3], order.by = as.Date(TM[, 2]))
-print(paste("End of TM", ts_summary(TM)$end, sep = ": "))
 
-#Consumer Opinion Surveys: Confidence Indicators: Composite Indicators: OECD Indicator for the United States
-COS = ts_fred("CSCICP03USM665S")
-COS = xts(COS[, 3], order.by = as.Date(COS[, 2]))
-print(paste("End of COS", ts_summary(TM)$end, sep = ": "))
+#Leading Indicators OECD: Component series: Share prices: Normalised for the United States
+SP = ts_fred("USALOCOSPNOSTSAM")
+SP = xts(SP[, 3], order.by = as.Date(SP[, 2]))
+
+# #Consumer Opinion Surveys: Confidence Indicators: Composite Indicators: OECD Indicator for the United States
+# COS = ts_fred("CSCICP03USM665S")
+# COS = xts(COS[, 3], order.by = as.Date(COS[, 2]))
+# print(paste("End of COS", ts_summary(TM)$end, sep = ": "))
 
 # #Business Tendency Surveys for Manufacturing: Confidence Indicators: Composite Indicators: OECD Indicator for the United States
 # BTS = ts_fred("BSCICP03USM665S")
@@ -99,8 +98,11 @@ ts_ggplot(TLP)
 #Plotting TM
 ts_ggplot(log(TM))
 
-#Plotting COS
-ts_ggplot(COS)
+#Plotting SP
+ts_ggplot(SP)
+
+# #Plotting COS
+# ts_ggplot(COS)
 
 # #Plotting BTS
 # ts_ggplot(BTS)
@@ -127,7 +129,8 @@ IPNCCONGD = ts_span(IPNCCONGD, start = myStart)
 PCE = ts_span(PCE, start = myStart)
 TLP = ts_span(TLP, start = myStart)
 TM = ts_span(TM, start = myStart)
-COS = ts_span(COS, start = myStart)
+SP = ts_span(TS, start = myStart)
+# COS = ts_span(COS, start = myStart)
 # BTS = ts_span(BTS, start = myStart)
 # OB = ts_span(OB, start = myStart)
 # TCS = ts_span(TCS, start = myStart)
@@ -160,8 +163,8 @@ summary(uRootTM)
 uRootTMd = CADFtest(ts_diff(log(TM)), max.lag.y = 10, type = "drift", criterion = "BIC")
 summary(uRootTMd)
 
-uRootCOS = CADFtest(COS, max.lag.y = 10, type = "drift", criterion = "BIC")
-summary(uRootCOS)
+# uRootCOS = CADFtest(COS, max.lag.y = 10, type = "drift", criterion = "BIC")
+# summary(uRootCOS)
 
 # uRootTCS = CADFtest(log(TCS), max.lag.y = 10, type = "trend", criterion = "BIC")
 # summary(uRootTCS)
@@ -188,7 +191,7 @@ ts_ggplot(dTM)
 #4) CCF and pre-whitening ------------------------------------------------------
 #-------------------------------------------------------------------------------
 
-#Examine lead-lag with CCF. Coincident indicator. IP
+#Examine lead-lag with CCF. IP
 dIPq = ts_frequency(dIP, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(dIPq), ts_ts(GDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
@@ -203,7 +206,7 @@ p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between industrial production and GDP growth", subtitle = "Quarterly")
 p
 
-#Examine lead-lag with CCF. Coincident indicator. IP non-durable goods
+#Examine lead-lag with CCF. IP non-durable goods
 dIPNCCONGDq = ts_frequency(dIPNCCONGD, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(dIPNCCONGDq), ts_ts(GDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
@@ -217,7 +220,7 @@ p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between industrial production: non-durable goods and GDP growth", subtitle = "Quarterly")
 p
 
-#Examine lead-lag with CCF. Coincident indicator. PCE
+#Examine lead-lag with CCF.PCE
 dPCEq = ts_frequency(dPCE, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(dPCEq), ts_ts(GDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
@@ -231,7 +234,7 @@ p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between PCE and GDP growth", subtitle = "Quarterly")
 p
 
-#Examine lead-lag with CCF. Coincident indicator. TLP
+#Examine lead-lag with CCF.TLP
 TLPq = ts_frequency(TLP, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(TLPq), ts_ts(GDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
@@ -245,7 +248,7 @@ p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between TLP and GDP growth", subtitle = "Quarterly")
 p
 
-#Examine lead-lag with CCF. Coincident indicator. TM
+#Examine lead-lag with CCF.TM
 dTMq = ts_frequency(dTM, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(dTMq), ts_ts(GDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
@@ -259,19 +262,35 @@ p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between TM and GDP growth", subtitle = "Quarterly")
 p
 
-#Examine lead-lag with CCF. Coincident indicator. TLP
-COSq = ts_frequency(COS, to = "quarter", aggregate= "mean", na.rm = TRUE)
-p = plotCCF(ts_ts(COSq), ts_ts(GDP), lag.max = 15)
+#Examine lead-lag with CCF. SP
+SPq = ts_frequency(SP, to = "quarter", aggregate= "mean", na.rm = TRUE)
+p = plotCCF(ts_ts(SPq), ts_ts(GDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Cross-correlation between COS and GDP growth", subtitle = "Quarterly")
+  labs(title = "Cross-correlation between SP and GDP growth", subtitle = "Quarterly")
 p
 
-#Pre-whitening data. Lagging 4 quarters.
-ModelCOS  = auto.arima(COSq, max.p = 5, max.q = 5, ic = c("bic"))
-p = plotCCF(ts_ts(resid(ModelCOS)), ts_ts(resid(ModelGDP)), lag.max = 15)
+#Pre-whitening data. Leading 2 quarters
+ModelSP  = auto.arima(SPq, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(ModelSP)), ts_ts(resid(ModelGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between COS and GDP growth", subtitle = "Quarterly")
+  labs(title = "Pre-whitened Cross-correlation between SP and GDP growth", subtitle = "Quarterly")
 p
+
+
+
+# #Examine lead-lag with CCF. Coincident indicator. TLP
+# COSq = ts_frequency(COS, to = "quarter", aggregate= "mean", na.rm = TRUE)
+# p = plotCCF(ts_ts(COSq), ts_ts(GDP), lag.max = 15)
+# p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+#   labs(title = "Cross-correlation between COS and GDP growth", subtitle = "Quarterly")
+# p
+# 
+# #Pre-whitening data. Lagging 4 quarters.
+# ModelCOS  = auto.arima(COSq, max.p = 5, max.q = 5, ic = c("bic"))
+# p = plotCCF(ts_ts(resid(ModelCOS)), ts_ts(resid(ModelGDP)), lag.max = 15)
+# p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+#   labs(title = "Pre-whitened Cross-correlation between COS and GDP growth", subtitle = "Quarterly")
+# p
 
 
 # #Examine lead-lag with CCF. Coincident indicator. BTS
@@ -289,8 +308,6 @@ p
 # p
 
 
-
-
 # #Examine lead-lag with CCF. Coincident indicator. OB
 # OBq = ts_frequency(OB, to = "quarter", aggregate= "mean", na.rm = TRUE)
 # p = plotCCF(ts_ts(OBq), ts_ts(GDP), lag.max = 15)
@@ -304,8 +321,6 @@ p
 # p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
 #   labs(title = "Pre-whitened Cross-correlation between OB and GDP growth", subtitle = "Quarterly")
 # p
-
-
 
 
 # #Examine lead-lag with CCF. Coincident indicator. TCS
