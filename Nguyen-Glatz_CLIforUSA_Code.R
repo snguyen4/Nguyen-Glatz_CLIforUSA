@@ -55,7 +55,15 @@ SP = xts(SP[, 3], order.by = as.Date(SP[, 2]))
 #European Commission and National Indicators for the United States
 BTS = ts_fred("BSCICP02USM460S")
 BTS = xts(BTS[, 3], order.by = as.Date(BTS[, 2]))
- 
+
+#Total construction spending
+TCS = ts_fred("TTLCONS")
+TCS = xts(TCS[, 3], order.by = as.Date(TCS[, 2]))
+
+#Consumer Opinion Surveys: Confidence Indicators: Composite Indicators: OECD Indicator for the United States
+COS = ts_fred("CSCICP03USM665S")
+COS = xts(COS[, 3], order.by = as.Date(COS[, 2]))
+
 # #Manufacturers' New Orders: Total Manufacturing. Starts in 1992. Should I remove it or make all series start in 1992?
 # TM = ts_fred("AMTMNO")
 # TM = xts(TM[, 3], order.by = as.Date(TM[, 2]))
@@ -64,10 +72,6 @@ BTS = xts(BTS[, 3], order.by = as.Date(BTS[, 2]))
 # IPNCCONGD = ts_fred("IPNCONGD")
 # IPNCCONGD = xts(IPNCCONGD[, 3], order.by = as.Date(IPNCCONGD[, 2]))
 
-# #Consumer Opinion Surveys: Confidence Indicators: Composite Indicators: OECD Indicator for the United States
-# COS = ts_fred("CSCICP03USM665S")
-# COS = xts(COS[, 3], order.by = as.Date(COS[, 2]))
-# print(paste("End of COS", ts_summary(TM)$end, sep = ": "))
 
 # #Business Tendency Surveys for Manufacturing: Confidence Indicators: Composite Indicators: OECD Indicator for the United States
 # BTS = ts_fred("BSCICP03USM665S")
@@ -79,10 +83,7 @@ BTS = xts(BTS[, 3], order.by = as.Date(BTS[, 2]))
 # OB = xts(OB[, 3], order.by = as.array.default(OB[, 2]))
 # print(paste("End of OB", ts_summary(TLP)$end, sep = ": "))
 
-# #Total construction spending
-# TCS = ts_fred("TTLCONS")
-# TCS = xts(TCS[, 3], order.by = as.Date(TCS[, 2]))
-# print(paste("End of TLP", ts_summary(TLP)$end, sep = ": "))
+
 
 # From http://www.nber.org/cycles.html
 NBERREC = read.table(textConnection(
@@ -140,17 +141,17 @@ ts_ggplot(SP)
 #Plotting BTS
 ts_ggplot(BTS)
 
+#Plotting TCS
+ts_ggplot(TCS)
+
+#Plotting COS
+ts_ggplot(COS)
+
 # #Plotting TM
 # ts_ggplot(log(TM))
 
-# #Plotting COS
-# ts_ggplot(COS)
-
 # #Plotting OB
 # ts_ggplot(OB)
-
-# #Plotting TCS
-# ts_ggplot(TCS)
 
 # #Plotting IPNCCONGD
 # ts_ggplot(log(IPNCCONGD))
@@ -158,8 +159,8 @@ ts_ggplot(BTS)
 #Plotting month on month growth rates if it has a trend. Roughly similar to first log-differences.
 ts_ggplot(ts_pc(IP))
 ts_ggplot(ts_pc(PCE))
+ts_ggplot(ts_pc(TCS))
 # ts_ggplot(ts_pc(TM))
-# ts_ggplot(ts_pc(TCS))
 # ts_ggplot(ts_pc(IPNCCONGD))
 
 # Shorten all series to start in xxxx-xx-xx
@@ -171,10 +172,10 @@ PCE = ts_span(PCE, start = myStart)
 TLP = ts_span(TLP, start = myStart)
 SP = ts_span(SP, start = myStart)
 BTS = ts_span(BTS, start = myStart)
+TCS = ts_span(TCS, start = myStart)
+COS = ts_span(COS, start = myStart)
 # TM = ts_span(TM, start = myStart)
-# COS = ts_span(COS, start = myStart)
 # OB = ts_span(OB, start = myStart)
-# TCS = ts_span(TCS, start = myStart)
 # IPNCCONGD = ts_span(IPNCCONGD, start = myStart)
 
 #Pre-COVID
@@ -183,6 +184,8 @@ preGDP = ts_span(GDP, end = preCovid)
 preTLP = ts_span(TLP, end = preCovid)
 preSP = ts_span(SP, end = preCovid)
 preBTS = ts_span(BTS, end = preCovid)
+preTCS = ts_span(TCS, end = preCovid)
+preCOS = ts_span(COS, end = preCovid)
 # prePCE = ts_span(PCE, end = preCovid)
 # preIP = ts_span(IP, end = preCovid)
 
@@ -202,6 +205,12 @@ summary(uRootPCE)
 uRootPCEd = CADFtest(ts_diff(log(PCE)), max.lag.y = 10, type = "drift", criterion = "BIC")
 summary(uRootPCEd)
 
+uRootTCS = CADFtest(log(TCS), max.lag.y = 10, type = "trend", criterion = "BIC")
+summary(uRootTCS)
+
+uRootTCSd = CADFtest(ts_diff(log(TCS)), max.lag.y = 10, type = "drift", criterion = "BIC")
+summary(uRootTCSd)
+
 # uRootTM = CADFtest(log(TM), max.lag.y = 10, type = "trend", criterion = "BIC")
 # summary(uRootTM)
 
@@ -217,11 +226,7 @@ summary(uRootPCEd)
 # uRootCOS = CADFtest(COS, max.lag.y = 10, type = "drift", criterion = "BIC")
 # summary(uRootCOS)
 
-# uRootTCS = CADFtest(log(TCS), max.lag.y = 10, type = "trend", criterion = "BIC")
-# summary(uRootTCS)
-# 
-# uRootTCSd = CADFtest(ts_diff(log(TCS)), max.lag.y = 10, type = "drift", criterion = "BIC")
-# summary(uRootTCSd)
+
 
 #Making series stationary
 dIP = ts_diff(log(IP))
@@ -230,18 +235,19 @@ ts_ggplot(dIP)
 dPCE = ts_diff(log(PCE))
 ts_ggplot(dPCE)
 
+dTCS = ts_diff(log(TCS))
+ts_ggplot(dTCS)
+
 #PreCovid
 predIP = ts_span(dIP, end = preCovid)
 predPCE = ts_span(dPCE, end = preCovid)
+predTCS = ts_span(dTCS, end = preCovid)
 
 # dTM = ts_diff(log(TM))
 # ts_ggplot(dTM)
 
 # dIPNCCONGD = ts_diff(log(IPNCCONGD))
 # ts_ggplot(dIPNCCONGD)
-
-# dTCS = ts_diff(log(TCS))
-# ts_ggplot(dTCS)
 
 #4) CCF and pre-whitening ------------------------------------------------------
 #-------------------------------------------------------------------------------
@@ -303,6 +309,34 @@ p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between BTS and GDP growth", subtitle = "Quarterly")
 p
 
+#Examine lead-lag with CCF. Coincident indicator. TCS
+predTCSq = ts_frequency(predTCS, to = "quarter", aggregate= "mean", na.rm = TRUE)
+p = plotCCF(ts_ts(predTCSq), ts_ts(preGDP), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Cross-correlation between TCS and GDP growth", subtitle = "Quarterly")
+p
+
+#Pre-whitening data.No correlation.
+predModelTCS  = auto.arima(predTCSq, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(predModelTCS)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Pre-whitened Cross-correlation between TCS and GDP growth", subtitle = "Quarterly")
+p
+
+#Examine lead-lag with CCF. COS.
+preCOSq = ts_frequency(preCOS, to = "quarter", aggregate= "mean", na.rm = TRUE)
+p = plotCCF(ts_ts(preCOSq), ts_ts(preGDP), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Cross-correlation between COS and GDP growth", subtitle = "Quarterly")
+p
+
+#Pre-whitening data. Leading one quarter
+ModelpreCOS  = auto.arima(preCOSq, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(ModelpreCOS)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Pre-whitened Cross-correlation between COS and GDP growth", subtitle = "Quarterly")
+p
+
 # #Pre-whitening data. Lead of one quarter. Doesn't change after pre-whitening. Not useful to pre-whiten data? No correlation pre covid?
 # ModelpreTLP  = auto.arima(preTLPq, max.p = 5, max.q = 5, ic = c("bic"))
 # p = plotCCF(ts_ts(resid(ModelpreTLP)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
@@ -329,20 +363,6 @@ p
 # p = plotCCF(ts_ts(resid(ModeldTM)), ts_ts(resid(ModelGDP)), lag.max = 15)
 # p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
 #   labs(title = "Pre-whitened Cross-correlation between TM and GDP growth", subtitle = "Quarterly")
-# p
-
-# #Examine lead-lag with CCF. Coincident indicator. TLP
-# COSq = ts_frequency(COS, to = "quarter", aggregate= "mean", na.rm = TRUE)
-# p = plotCCF(ts_ts(COSq), ts_ts(GDP), lag.max = 15)
-# p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-#   labs(title = "Cross-correlation between COS and GDP growth", subtitle = "Quarterly")
-# p
-# 
-# #Pre-whitening data. Lagging 4 quarters.
-# ModelCOS  = auto.arima(COSq, max.p = 5, max.q = 5, ic = c("bic"))
-# p = plotCCF(ts_ts(resid(ModelCOS)), ts_ts(resid(ModelGDP)), lag.max = 15)
-# p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-#   labs(title = "Pre-whitened Cross-correlation between COS and GDP growth", subtitle = "Quarterly")
 # p
 
 # #Examine lead-lag with CCF. Coincident indicator. BTS
@@ -373,20 +393,6 @@ p
 #   labs(title = "Pre-whitened Cross-correlation between OB and GDP growth", subtitle = "Quarterly")
 # p
 
-# #Examine lead-lag with CCF. Coincident indicator. TCS
-# dTCSq = ts_frequency(dTCS, to = "quarter", aggregate= "mean", na.rm = TRUE)
-# p = plotCCF(ts_ts(dTCSq), ts_ts(GDP), lag.max = 15)
-# p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-#   labs(title = "Cross-correlation between TCS and GDP growth", subtitle = "Quarterly")
-# p
-# 
-# #Pre-whitening data.No correlation.
-# dModelTCS  = auto.arima(dTCSq, max.p = 5, max.q = 5, ic = c("bic"))
-# p = plotCCF(ts_ts(resid(dModelTCS)), ts_ts(resid(ModelGDP)), lag.max = 15)
-# p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-#   labs(title = "Pre-whitened Cross-correlation between TCS and GDP growth", subtitle = "Quarterly")
-# p
-
 # #Examine lead-lag with CCF. IP non-durable goods
 # dIPNCCONGDq = ts_frequency(dIPNCCONGD, to = "quarter", aggregate= "mean", na.rm = TRUE)
 # p = plotCCF(ts_ts(dIPNCCONGDq), ts_ts(GDP), lag.max = 15)
@@ -404,25 +410,27 @@ p
 #5) Transformation for CLI------------------------------------------------------
 #-------------------------------------------------------------------------------
 
-# Summary
+# Summary. Not really sure for publication-
 # Indicator     Lead/lag      Cyclicality   Publication     Notes
 # Industrial P. Lead 1Q       Pro           Immediate       None
 # PCE           Lead 1Q       Pro           Immediate       None
 # Share Prices  Lead 1Q       Pro           Immediate       None
 # B.T survey    Lead 1Q       Pro           Immediate       None
-
+# Cons. Os. S.  Lead 1Q       Pro           Immediate       None
 
 #Transforming to monthly
-IPm = lag(ts_frequency(dIP, to = "month", aggregate= "mean", na.rm = TRUE), 0)    
-PCEm = lag(ts_frequency(dPCE, to = "month", aggregate= "mean", na.rm = TRUE), 0)
-SPm = lag(ts_frequency(SP, to = "month", aggregate= "mean", na.rm = TRUE), 0)
-BTSm = lag(ts_frequency(BTS, to = "month", aggregate= "mean", na.rm = TRUE), 0)
+IPm = lag(ts_frequency(dIP, to = "month", aggregate= "mean", na.rm = T), 0)    
+PCEm = lag(ts_frequency(dPCE, to = "month", aggregate= "mean", na.rm = T), 0)
+SPm = lag(ts_frequency(SP, to = "month", aggregate= "mean", na.rm = T), 0)
+BTSm = lag(ts_frequency(BTS, to = "month", aggregate= "mean", na.rm = T), 0)
+COSm = lag(ts_frequency(COS, to = "month", aggregate = "mean", na.rm = T), 0)
 
 #Normalize everything
 IPm = normalize(IPm)
 PCEm = normalize(PCEm)
 BTSm = normalize(BTSm)
 SPm = normalize(SPm)
+COSm = normalize(COSm)
 
 
 p = ts_ggplot(
@@ -430,6 +438,7 @@ p = ts_ggplot(
   "Personal Consumption Expenditure" = PCEm,
   "Share Prices" = SPm,
   "Business Tendency Surveys: Manufacturing" = BTSm,
+  "Consumer Opinion Surveys" = COSm,
   title = "Selection of indicators",
   subtitle = "monthly, normalized"
 )
@@ -437,13 +446,13 @@ p = ggLayout(p)
 p
 
 #Computing equally weighted indicator
-CLI = rowSums(cbind(IPm, PCEm, BTSm, SPm), na.rm=TRUE)/4
+CLI = rowSums(cbind(IPm, PCEm, BTSm, SPm, COSm), na.rm = T)/5
 Dates = seq(as.Date("1980-01-01"), length = length(CLI), by = "months")
 CLI = xts(CLI, order.by = Dates)
 
-g = ggplot(CLI) + geom_line(aes(x=index(CLI), y=CLI)) + theme_minimal()
-g = g + geom_rect(data=NBERREC, aes(xmin=Peak, xmax=Trough, ymin=-Inf, ymax=+Inf), fill='grey', alpha=0.5)
-g = g + geom_hline(yintercept=0, linetype="dashed", color = "red")
+g = ggplot(CLI) + geom_line(aes(x = index(CLI), y = CLI)) + theme_minimal()
+g = g + geom_rect(data=NBERREC, aes(xmin = Peak, xmax = Trough, ymin = -Inf, ymax = +Inf), fill ="grey", alpha = 0.5)
+g = g + geom_hline(yintercept = 0, linetype = "dashed", color = "red")
 g = g + xlab("") +  ggtitle("CLI simple average and NBER recessions")
 g = ggLayout(g)
 g
@@ -452,14 +461,14 @@ g
 #-------------------------------------------------------------------------------
 
 #Principal component analysis
-X = cbind(IPm, PCEm, BTSm, SPm)
-Ximp = imputePCA(as.matrix(X), ncp=1)
+X = cbind(IPm, PCEm, BTSm, SPm, COSm)
+Ximp = imputePCA(as.matrix(X), ncp = 1)
 PCX = prcomp(Ximp$completeObs)
-CLIf = xts(PCX$x[,"PC1"], order.by=as.Date(index(X)))
+CLIf = xts(PCX$x[,"PC1"], order.by = as.Date(index(X)))
 
-g = ggplot(CLIf) + geom_line(aes(x=index(CLIf), y=CLIf))
-g = g + geom_rect(data=NBERREC, aes(xmin=Peak, xmax=Trough, ymin=-Inf, ymax=+Inf), fill='grey', alpha=0.5)
-g = g + geom_hline(yintercept=0, linetype="dashed", color = "red")
+g = ggplot(CLIf) + geom_line(aes(x = index(CLIf), y = CLIf))
+g = g + geom_rect(data = NBERREC, aes(xmin = Peak, xmax = Trough, ymin = -Inf, ymax = +Inf), fill = "grey", alpha = 0.5)
+g = g + geom_hline(yintercept = 0, linetype = "dashed", color = "red")
 g = g + xlab("") +  ggtitle("CLI factor model and NBER recessions")
 g = ggLayout(g)
 g
