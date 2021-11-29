@@ -177,6 +177,15 @@ BTS = ts_span(BTS, start = myStart)
 # TCS = ts_span(TCS, start = myStart)
 # IPNCCONGD = ts_span(IPNCCONGD, start = myStart)
 
+#Pre-COVID
+preCovid = "2019-12-01"
+preGDP = ts_span(GDP, end = preCovid)
+preTLP = ts_span(TLP, end = preCovid)
+preSP = ts_span(SP, end = preCovid)
+preBTS = ts_span(BTS, end = preCovid)
+# prePCE = ts_span(PCE, end = preCovid)
+# preIP = ts_span(IP, end = preCovid)
+
 #3) Making series with a trend stationary --------------------------------------
 #-------------------------------------------------------------------------------
 
@@ -221,6 +230,10 @@ ts_ggplot(dIP)
 dPCE = ts_diff(log(PCE))
 ts_ggplot(dPCE)
 
+#PreCovid
+predIP = ts_span(dIP, end = preCovid)
+predPCE = ts_span(dPCE, end = preCovid)
+
 # dTM = ts_diff(log(TM))
 # ts_ggplot(dTM)
 
@@ -234,75 +247,75 @@ ts_ggplot(dPCE)
 #-------------------------------------------------------------------------------
 
 #Examine lead-lag with CCF. IP
-dIPq = ts_frequency(dIP, to = "quarter", aggregate= "mean", na.rm = TRUE)
-p = plotCCF(ts_ts(dIPq), ts_ts(GDP), lag.max = 15)
+predIPq = ts_frequency(predIP, to = "quarter", aggregate= "mean", na.rm = TRUE)
+p = plotCCF(ts_ts(predIPq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Cross-correlation between industrial production and GDP growth", subtitle = "Quarterly")
 p
 
 #Pre-whitening data. Lead of one quarter. Changes if start date changes. Lagging if 1992.
-ModelGDP = auto.arima(GDP, max.p = 5, max.q = 5, ic = c("bic"))
-ModeldIP  = auto.arima(dIPq, max.p = 5, max.q = 5, ic = c("bic"))
-p = plotCCF(ts_ts(resid(ModeldIP)), ts_ts(resid(ModelGDP)), lag.max = 15)
+ModelpreGDP = auto.arima(preGDP, max.p = 5, max.q = 5, ic = c("bic"))
+ModelpredIP  = auto.arima(predIPq, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(ModelpredIP)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between industrial production and GDP growth", subtitle = "Quarterly")
 p
 
 #Examine lead-lag with CCF.PCE
-dPCEq = ts_frequency(dPCE, to = "quarter", aggregate= "mean", na.rm = TRUE)
-p = plotCCF(ts_ts(dPCEq), ts_ts(GDP), lag.max = 15)
+predPCEq = ts_frequency(predPCE, to = "quarter", aggregate= "mean", na.rm = TRUE)
+p = plotCCF(ts_ts(predPCEq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Cross-correlation between PCE and GDP growth", subtitle = "Quarterly")
 p
 
-#Pre-whitening data. Lead of one quarter. Leading one quarter. Doesn't change after pre-whitening. Not useful to pre-whiten data?
-ModeldPCE  = auto.arima(dPCEq, max.p = 5, max.q = 5, ic = c("bic"))
-p = plotCCF(ts_ts(resid(ModeldPCE)), ts_ts(resid(ModelGDP)), lag.max = 15)
+#Pre-whitening data. Lead of one quarter. Leading one quarter. Doesn't change after pre-whitening.
+ModelpredPCE  = auto.arima(predPCEq, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(ModelpredPCE)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between PCE and GDP growth", subtitle = "Quarterly")
 p
 
 #Examine lead-lag with CCF.TLP
-TLPq = ts_frequency(TLP, to = "quarter", aggregate= "mean", na.rm = TRUE)
-p = plotCCF(ts_ts(TLPq), ts_ts(GDP), lag.max = 15)
+preTLPq = ts_frequency(preTLP, to = "quarter", aggregate= "mean", na.rm = TRUE)
+p = plotCCF(ts_ts(preTLPq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Cross-correlation between TLP and GDP growth", subtitle = "Quarterly")
 p
 
-#Pre-whitening data. Lead of one quarter. Doesn't change after pre-whitening. Not useful to pre-whiten data?
-ModelTLP  = auto.arima(TLPq, max.p = 5, max.q = 5, ic = c("bic"))
-p = plotCCF(ts_ts(resid(ModelTLP)), ts_ts(resid(ModelGDP)), lag.max = 15)
-p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between TLP and GDP growth", subtitle = "Quarterly")
-p
-
-#Examine lead-lag with CCF. SP
-SPq = ts_frequency(SP, to = "quarter", aggregate= "mean", na.rm = TRUE)
-p = plotCCF(ts_ts(SPq), ts_ts(GDP), lag.max = 15)
-p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Cross-correlation between SP and GDP growth", subtitle = "Quarterly")
-p
-
 #Pre-whitening data. Leading 1 quarter.
-ModelSP  = auto.arima(SPq, max.p = 5, max.q = 5, ic = c("bic"))
-p = plotCCF(ts_ts(resid(ModelSP)), ts_ts(resid(ModelGDP)), lag.max = 15)
+ModelpreSP  = auto.arima(preSPq, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(ModelpreSP)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between SP and GDP growth", subtitle = "Quarterly")
 p
 
 #Examine lead-lag with CCF. BTS
-BTSq = ts_frequency(BTS, to = "quarter", aggregate= "mean", na.rm = TRUE)
-p = plotCCF(ts_ts(BTSq), ts_ts(GDP), lag.max = 15)
+preBTSq = ts_frequency(preBTS, to = "quarter", aggregate= "mean", na.rm = TRUE)
+p = plotCCF(ts_ts(preBTSq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Cross-correlation between BTS and GDP growth", subtitle = "Quarterly")
 p
 
 #Pre-whitening data. Leading 1 quarter.
-ModelBTS  = auto.arima(BTSq, max.p = 5, max.q = 5, ic = c("bic"))
-p = plotCCF(ts_ts(resid(ModelBTS)), ts_ts(resid(ModelGDP)), lag.max = 15)
+ModelpreBTS  = auto.arima(preBTSq, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(ModelpreBTS)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between BTS and GDP growth", subtitle = "Quarterly")
 p
+
+# #Pre-whitening data. Lead of one quarter. Doesn't change after pre-whitening. Not useful to pre-whiten data? No correlation pre covid?
+# ModelpreTLP  = auto.arima(preTLPq, max.p = 5, max.q = 5, ic = c("bic"))
+# p = plotCCF(ts_ts(resid(ModelpreTLP)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
+# p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+#   labs(title = "Pre-whitened Cross-correlation between TLP and GDP growth", subtitle = "Quarterly")
+# p
+# 
+# #Examine lead-lag with CCF. SP
+# preSPq = ts_frequency(preSP, to = "quarter", aggregate= "mean", na.rm = TRUE)
+# p = plotCCF(ts_ts(preSPq), ts_ts(preGDP), lag.max = 15)
+# p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+#   labs(title = "Cross-correlation between SP and GDP growth", subtitle = "Quarterly")
+# p
 
 # #Examine lead-lag with CCF.TM
 # dTMq = ts_frequency(dTM, to = "quarter", aggregate= "mean", na.rm = TRUE)
@@ -395,7 +408,6 @@ p
 # Indicator     Lead/lag      Cyclicality   Publication     Notes
 # Industrial P. Lead 1Q       Pro           Immediate       None
 # PCE           Lead 1Q       Pro           Immediate       None
-# TLP           Lead 1Q       Pro           Immediate       None
 # Share Prices  Lead 1Q       Pro           Immediate       None
 # B.T survey    Lead 1Q       Pro           Immediate       None
 
@@ -403,14 +415,12 @@ p
 #Transforming to monthly
 IPm = lag(ts_frequency(dIP, to = "month", aggregate= "mean", na.rm = TRUE), 0)    
 PCEm = lag(ts_frequency(dPCE, to = "month", aggregate= "mean", na.rm = TRUE), 0)
-TLPm = lag(ts_frequency(TLP, to = "month", aggregate= "mean", na.rm = TRUE), 0)
 SPm = lag(ts_frequency(SP, to = "month", aggregate= "mean", na.rm = TRUE), 0)
 BTSm = lag(ts_frequency(BTS, to = "month", aggregate= "mean", na.rm = TRUE), 0)
 
 #Normalize everything
 IPm = normalize(IPm)
 PCEm = normalize(PCEm)
-TLPm = normalize(TLPm)
 BTSm = normalize(BTSm)
 SPm = normalize(SPm)
 
@@ -418,7 +428,6 @@ SPm = normalize(SPm)
 p = ts_ggplot(
   "Industrial Production" = IPm,
   "Personal Consumption Expenditure" = PCEm,
-  "Total Labour Productivity" = TLPm,
   "Share Prices" = SPm,
   "Business Tendency Surveys: Manufacturing" = BTSm,
   title = "Selection of indicators",
@@ -428,7 +437,7 @@ p = ggLayout(p)
 p
 
 #Computing equally weighted indicator
-CLI = rowSums(cbind(IPm, PCEm, TLPm, BTSm, SPm), na.rm=TRUE)/5
+CLI = rowSums(cbind(IPm, PCEm, BTSm, SPm), na.rm=TRUE)/4
 Dates = seq(as.Date("1980-01-01"), length = length(CLI), by = "months")
 CLI = xts(CLI, order.by = Dates)
 
@@ -443,7 +452,7 @@ g
 #-------------------------------------------------------------------------------
 
 #Principal component analysis
-X = cbind(IPm, PCEm, TLPm, BTSm, SPm)
+X = cbind(IPm, PCEm, BTSm, SPm)
 Ximp = imputePCA(as.matrix(X), ncp=1)
 PCX = prcomp(Ximp$completeObs)
 CLIf = xts(PCX$x[,"PC1"], order.by=as.Date(index(X)))
