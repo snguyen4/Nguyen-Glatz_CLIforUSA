@@ -17,16 +17,12 @@ library(CADFtest)
 library(seasonal)
 library(missMDA)
 
-#Reset
-rm(list=ls())
-
 #Loading Prof. Kaufamann packages
 source("UserPackages.R")
 
 #To save files + graphs
 mainDir = getwd()
 outDir = makeOutDir(mainDir, "/ResultsCLIforUSA")
-
 
 #2) Loading data/Data transformation -------------------------------------------
 #-------------------------------------------------------------------------------
