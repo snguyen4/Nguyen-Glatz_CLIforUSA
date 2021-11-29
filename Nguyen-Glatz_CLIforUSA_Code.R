@@ -83,8 +83,6 @@ COS = xts(COS[, 3], order.by = as.Date(COS[, 2]))
 # OB = xts(OB[, 3], order.by = as.array.default(OB[, 2]))
 # print(paste("End of OB", ts_summary(TLP)$end, sep = ": "))
 
-
-
 # From http://www.nber.org/cycles.html
 NBERREC = read.table(textConnection(
   "Peak, Trough
@@ -225,8 +223,6 @@ summary(uRootTCSd)
 
 # uRootCOS = CADFtest(COS, max.lag.y = 10, type = "drift", criterion = "BIC")
 # summary(uRootCOS)
-
-
 
 #Making series stationary
 dIP = ts_diff(log(IP))

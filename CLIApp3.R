@@ -9,24 +9,22 @@ TS = xts(TS[, 3], order.by = TS[, 2])
 IC = ts_fred('ICSA')
 IC = xts(IC[, 3], order.by = IC[, 2])
 
-
 #Business tendency survey manufacturing
 BT = ts_fred('BSPRTE02USM460S')
 BT = xts(BT[, 3], order.by = BT[, 2])
-
 
 #Consumer sentiment survey
 CS = ts_fred('UMCSENT')
 CS = (xts(CS[, 3], order.by = CS[, 2]))
 
-#Series with all data up to current date for calculating the indicator
+#Series with all data from 1980 to current date for calculating the indicator
 myStart = "1980-01-01"
 TS  = ts_span(TS, start = myStart)
 IC  = ts_span(IC, start = myStart)
 BT  = ts_span(BT, start = myStart)
 CS  = ts_span(CS, start = myStart)
 
-#Tranforming to monthly frequency
+#Transforming to monthly frequency
 TSm = lag(ts_frequency(TS, to = "month", aggregate= "mean", na.rm = TRUE), 0)    
 ICm = -1*lag(ts_frequency(IC, to = "month", aggregate= "mean", na.rm = TRUE), 0)
 BTm = lag(ts_frequency(BT, to = "month", aggregate= "mean", na.rm = TRUE), 0)
