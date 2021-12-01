@@ -496,3 +496,10 @@ CLIq = ts_frequency(CLI, to = "quarter", aggregate= "mean", na.rm = T)
 CLIq = ts_span(CLIq, end = "2021-07-01")
 lmCLI = lm(GDP ~ CLIq) 
 summary(lmCLI) 
+
+#Regressing GDP growth on App3 indicator
+CLIApp3q = ts_frequency(CLIApp3, to = "quarter", aggregate= "mean", na.rm = T)
+CLIApp3q = ts_span(CLIApp3q, end = "2021-07-01")
+lmCLIApp3 = lm(GDP ~ CLIApp3q) 
+summary(lmCLIApp3) 
+
