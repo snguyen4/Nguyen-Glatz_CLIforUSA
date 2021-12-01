@@ -32,7 +32,8 @@ GDP = ts_fred("A191RL1Q225SBEA")
 GDP = xts(GDP[,3], order.by = as.Date(GDP[,2]))
 
 #Plotting GDP growth
-ts_ggplot(GDP)
+ts_ggplot(GDP) +
+  labs(title = "GDP growth")
 
 #Possible indicators
 #Industrial production
@@ -76,6 +77,106 @@ OAS = xts(OAS[, 3], order.by =  as.Date(OAS[, 2]))
 STFLI2 = ts_fred("STLFSI2")
 STFLI2 = xts(STFLI2[, 3], order.by =  as.Date(STFLI2[, 2]))
 
+#Initial Plotting
+#Plotting Industrial Production. We can see that it is not stationary
+ts_ggplot(log(IP)) +
+  labs(title = "Industrial production")
+ 
+#Plotting Personal Consumption Expenditures
+ts_ggplot(log(PCE)) +
+  labs(title = "Personal consumption xpenditure")
+
+#Plotting SP
+ts_ggplot(SP) +
+  labs(title = "Share prices")
+
+#Plotting BTS
+ts_ggplot(BTS) +
+  labs(title = "Business tendency surveys: Manufacturing")
+
+#Plotting TCS
+ts_ggplot(TCS) +
+  labs(title = "Total construction spending")
+
+#Plotting COS
+ts_ggplot(COS) +
+  labs(title = "Consumer opinion surveys")
+
+#Plotting EPUI. Not seasonally adjusted.
+ts_ggplot(EPUI) +
+  labs(title = "Economic Policy Uncertainty Index for United States")
+
+#Plotting VIX
+ts_ggplot(VIX) +
+  labs(title = "CBOE Volatility Index: VIX")
+
+#Plotting OAS
+ts_ggplot(OAS) +
+  labs(title = "ICE BofA US High Yield Index Option-Adjusted Spread")
+
+#Plotting STFLI2
+ts_ggplot(STFLI2) +
+  labs(title = "St. Louis Fed Financial Stress Index")
+
+#Plotting month on month growth rates if it has a trend. Roughly similar to first log-differences.
+ts_ggplot(ts_pc(IP))
+ts_ggplot(ts_pc(PCE))
+ts_ggplot(ts_pc(TCS))
+
+#Removing seasonality
+
+#Seasonal period is too large. In order to use SEATS, the frequency had to be changed to monthly 
+#Economic Policy Uncertainty Index for United States
+EPUI = ts_frequency(EPUI, to = "month", aggregate = "mean", na.rm = TRUE)
+EPUI = seas(ts_ts(EPUI))
+EPUI = trend(EPUI)
+
+ts_ggplot(EPUI) +
+  labs(title = "Economic Policy Uncertainty Index for United States", subtitle = "Seasonally adjusted")
+
+#CBOE Volatility Index: VIX
+VIX = ts_frequency(VIX, to = "month", aggregate = "mean", na.rm = TRUE)
+VIX = seas(ts_ts(VIX))
+VIX = trend(VIX)
+
+ts_ggplot(VIX) +
+  labs(title = "CBOE Volatility Index: VIX", subtitle = "Seasonally adjusted")
+
+#ICE BofA US High Yield Index Option-Adjusted Spread
+OAS = ts_frequency(OAS, to = "month", aggregate = "mean", na.rm = TRUE)
+OAS = seas(ts_ts(OAS))
+OAS = trend(OAS)
+
+ts_ggplot(OAS) +
+  labs(title = "ICE BofA US High Yield Index Option-Adjusted Spread", subtitle = "Seasonally adjusted")
+
+#St. Louis Fed Financial Stress Index
+STFLI2 = ts_frequency(STFLI2, to = "month", aggregate = "mean", na.rm = TRUE)
+STFLI2 = seas(ts_ts(STFLI2))
+STFLI2 = trend(STFLI2)
+
+ts_ggplot(STFLI2) +
+  labs(title = "St. Louis Fed Financial Stress Index", subtitle = "Seasonally adjusted")
+
+#Shortening all series to start in xxxx-xx-xx
+myStart = "1996-12-31"
+
+IP  = ts_span(IP, start = myStart)
+GDP  = ts_span(GDP, start = myStart)
+PCE = ts_span(PCE, start = myStart)
+SP = ts_span(SP, start = myStart)
+BTS = ts_span(BTS, start = myStart)
+TCS = ts_span(TCS, start = myStart)
+COS = ts_span(COS, start = myStart)
+
+#Pre-COVID
+preCovid = "2019-12-01"
+preGDP = ts_span(GDP, end = preCovid)
+preSP = ts_span(SP, end = preCovid)
+preBTS = ts_span(BTS, end = preCovid)
+preTCS = ts_span(TCS, end = preCovid)
+preCOS = ts_span(COS, end = preCovid)
+
 # From http://www.nber.org/cycles.html
 NBERREC = read.table(textConnection(
   "Peak, Trough
@@ -114,50 +215,7 @@ NBERREC = read.table(textConnection(
   2007-12-01, 2009-06-01
   2020-02-01, 2021-02-01"), sep=',',
   colClasses=c('Date', 'Date'), header=TRUE)
-NBERREC = subset(NBERREC, Peak >= as.Date("1980-01-01") )
-
-#Initial Plotting
-#Plotting Industrial Production. We can see that it is not stationary
-ts_ggplot(log(IP))
-
-#Plotting Personal Consumption Expenditures
-ts_ggplot(log(PCE))
-
-#Plotting SP
-ts_ggplot(SP)
-
-#Plotting BTS
-ts_ggplot(BTS)
-
-#Plotting TCS
-ts_ggplot(TCS)
-
-#Plotting COS
-ts_ggplot(COS)
-
-#Plotting month on month growth rates if it has a trend. Roughly similar to first log-differences.
-ts_ggplot(ts_pc(IP))
-ts_ggplot(ts_pc(PCE))
-ts_ggplot(ts_pc(TCS))
-
-# Shorten all series to start in xxxx-xx-xx
-myStart = "1980-01-01"
-
-IP  = ts_span(IP, start = myStart)
-GDP  = ts_span(GDP, start = myStart)
-PCE = ts_span(PCE, start = myStart)
-SP = ts_span(SP, start = myStart)
-BTS = ts_span(BTS, start = myStart)
-TCS = ts_span(TCS, start = myStart)
-COS = ts_span(COS, start = myStart)
-
-#Pre-COVID
-preCovid = "2019-12-01"
-preGDP = ts_span(GDP, end = preCovid)
-preSP = ts_span(SP, end = preCovid)
-preBTS = ts_span(BTS, end = preCovid)
-preTCS = ts_span(TCS, end = preCovid)
-preCOS = ts_span(COS, end = preCovid)
+NBERREC = subset(NBERREC, Peak >= as.Date(myStart) )
 
 #3) Making series with a trend stationary --------------------------------------
 #-------------------------------------------------------------------------------
