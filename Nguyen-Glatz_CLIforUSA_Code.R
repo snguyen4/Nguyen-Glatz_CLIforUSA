@@ -60,6 +60,22 @@ TCS = xts(TCS[, 3], order.by = as.Date(TCS[, 2]))
 COS = ts_fred("CSCICP03USM665S")
 COS = xts(COS[, 3], order.by = as.Date(COS[, 2]))
 
+#Economic Policy Uncertainty Index for United States
+EPUI = ts_fred("USEPUINDXD")
+EPUI = xts(EPUI[, 3], order.by =  as.Date(EPUI[, 2]))
+
+#CBOE Volatility Index: VIX
+VIX = ts_fred("VIXCLS")
+VIX = xts(VIX[, 3], order.by =  as.Date(VIX[, 2]))
+
+#ICE BofA US High Yield Index Option-Adjusted Spread
+OAS = ts_fred("BAMLH0A0HYM2")
+OAS = xts(OAS[, 3], order.by =  as.Date(OAS[, 2]))
+
+#St. Louis Fed Financial Stress Index
+STFLI2 = ts_fred("STLFSI2")
+STFLI2 = xts(STFLI2[, 3], order.by =  as.Date(STFLI2[, 2]))
+
 # From http://www.nber.org/cycles.html
 NBERREC = read.table(textConnection(
   "Peak, Trough
@@ -292,7 +308,6 @@ PCEm = normalize(PCEm)
 BTSm = normalize(BTSm)
 SPm = normalize(SPm)
 COSm = normalize(COSm)
-
 
 p = ts_ggplot(
   "Industrial Production" = IPm,
