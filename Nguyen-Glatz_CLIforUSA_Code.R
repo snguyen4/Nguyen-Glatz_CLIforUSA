@@ -43,10 +43,6 @@ IP = xts(IP[, 3], order.by = as.Date(IP[, 2]))
 PCE = ts_fred("PCE")
 PCE = xts(PCE[, 3], order.by = as.Date(PCE[, 2]))
 
-#Early Estimate of Quarterly ULC Indicators: Total Labor Productivity for the United States. Quarterly bad?
-TLP = ts_fred("ULQELP01USQ657S")
-TLP = xts(TLP[, 3], order.by = as.Date(TLP[, 2]))
-
 #Leading Indicators OECD: Component series: Share prices: Normalised for the United States
 SP = ts_fred("USALOCOSPNOSTSAM")
 SP = xts(SP[, 3], order.by = as.Date(SP[, 2]))
@@ -63,6 +59,10 @@ TCS = xts(TCS[, 3], order.by = as.Date(TCS[, 2]))
 #Consumer Opinion Surveys: Confidence Indicators: Composite Indicators: OECD Indicator for the United States
 COS = ts_fred("CSCICP03USM665S")
 COS = xts(COS[, 3], order.by = as.Date(COS[, 2]))
+
+# #Early Estimate of Quarterly ULC Indicators: Total Labor Productivity for the United States. Quarterly bad?
+# TLP = ts_fred("ULQELP01USQ657S")
+# TLP = xts(TLP[, 3], order.by = as.Date(TLP[, 2]))
 
 # #Manufacturers' New Orders: Total Manufacturing. Starts in 1992. Should I remove it or make all series start in 1992?
 # TM = ts_fred("AMTMNO")
@@ -124,14 +124,11 @@ NBERREC = read.table(textConnection(
 NBERREC = subset(NBERREC, Peak >= as.Date("1980-01-01") )
 
 #Initial Plotting
-#Plotting Industrial production. We can see that it is not stationary
+#Plotting Industrial Production. We can see that it is not stationary
 ts_ggplot(log(IP))
 
-#Plotting PCE
+#Plotting Personal Consumption Expenditures
 ts_ggplot(log(PCE))
-
-#Plotting TLP
-ts_ggplot(TLP)
 
 #Plotting SP
 ts_ggplot(SP)
@@ -144,6 +141,9 @@ ts_ggplot(TCS)
 
 #Plotting COS
 ts_ggplot(COS)
+
+# #Plotting TLP
+# ts_ggplot(TLP)
 
 # #Plotting TM
 # ts_ggplot(log(TM))
@@ -167,11 +167,11 @@ myStart = "1980-01-01"
 IP  = ts_span(IP, start = myStart)
 GDP  = ts_span(GDP, start = myStart)
 PCE = ts_span(PCE, start = myStart)
-TLP = ts_span(TLP, start = myStart)
 SP = ts_span(SP, start = myStart)
 BTS = ts_span(BTS, start = myStart)
 TCS = ts_span(TCS, start = myStart)
 COS = ts_span(COS, start = myStart)
+# TLP = ts_span(TLP, start = myStart)
 # TM = ts_span(TM, start = myStart)
 # OB = ts_span(OB, start = myStart)
 # IPNCCONGD = ts_span(IPNCCONGD, start = myStart)
@@ -179,11 +179,11 @@ COS = ts_span(COS, start = myStart)
 #Pre-COVID
 preCovid = "2019-12-01"
 preGDP = ts_span(GDP, end = preCovid)
-preTLP = ts_span(TLP, end = preCovid)
 preSP = ts_span(SP, end = preCovid)
 preBTS = ts_span(BTS, end = preCovid)
 preTCS = ts_span(TCS, end = preCovid)
 preCOS = ts_span(COS, end = preCovid)
+# preTLP = ts_span(TLP, end = preCovid)
 # prePCE = ts_span(PCE, end = preCovid)
 # preIP = ts_span(IP, end = preCovid)
 
@@ -267,71 +267,78 @@ p
 predPCEq = ts_frequency(predPCE, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(predPCEq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Cross-correlation between PCE and GDP growth", subtitle = "Quarterly")
+  labs(title = "Cross-correlation between personal consumption rxpenditures and GDP growth", subtitle = "Quarterly")
 p
 
 #Pre-whitening data. Lead of one quarter. Leading one quarter. Doesn't change after pre-whitening.
 ModelpredPCE  = auto.arima(predPCEq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModelpredPCE)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between PCE and GDP growth", subtitle = "Quarterly")
+  labs(title = "Pre-whitened Cross-correlation between personal consumption expenditures and GDP growth", subtitle = "Quarterly")
 p
 
-#Examine lead-lag with CCF.TLP
-preTLPq = ts_frequency(preTLP, to = "quarter", aggregate= "mean", na.rm = TRUE)
-p = plotCCF(ts_ts(preTLPq), ts_ts(preGDP), lag.max = 15)
+#Examine lead-lag with CCF. SP
+preSPq = ts_frequency(preSP, to = "quarter", aggregate= "mean", na.rm = TRUE)
+p = plotCCF(ts_ts(preSPq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Cross-correlation between TLP and GDP growth", subtitle = "Quarterly")
+  labs(title = "Cross-correlation between share prices and GDP growth", subtitle = "Quarterly")
 p
 
 #Pre-whitening data. Leading 1 quarter.
 ModelpreSP  = auto.arima(preSPq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModelpreSP)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between SP and GDP growth", subtitle = "Quarterly")
+  labs(title = "Pre-whitened Cross-correlation between share prices and GDP growth", subtitle = "Quarterly")
 p
 
 #Examine lead-lag with CCF. BTS
 preBTSq = ts_frequency(preBTS, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(preBTSq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Cross-correlation between BTS and GDP growth", subtitle = "Quarterly")
+  labs(title = "Cross-correlation between business tendency surveys for manufacturing and GDP growth", subtitle = "Quarterly")
 p
 
 #Pre-whitening data. Leading 1 quarter.
 ModelpreBTS  = auto.arima(preBTSq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModelpreBTS)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between BTS and GDP growth", subtitle = "Quarterly")
+  labs(title = "Pre-whitened Cross-correlation between business tendency surveys for manufacturing and GDP growth", subtitle = "Quarterly")
 p
 
 #Examine lead-lag with CCF. Coincident indicator. TCS
 predTCSq = ts_frequency(predTCS, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(predTCSq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Cross-correlation between TCS and GDP growth", subtitle = "Quarterly")
+  labs(title = "Cross-correlation between total construction spending and GDP growth", subtitle = "Quarterly")
 p
 
 #Pre-whitening data.No correlation.
 predModelTCS  = auto.arima(predTCSq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(predModelTCS)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between TCS and GDP growth", subtitle = "Quarterly")
+  labs(title = "Pre-whitened Cross-correlation between total construction spending and GDP growth", subtitle = "Quarterly")
 p
 
 #Examine lead-lag with CCF. COS.
 preCOSq = ts_frequency(preCOS, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(preCOSq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Cross-correlation between COS and GDP growth", subtitle = "Quarterly")
+  labs(title = "Cross-correlation between consumer opinion surveys and GDP growth", subtitle = "Quarterly")
 p
 
 #Pre-whitening data. Leading one quarter
 ModelpreCOS  = auto.arima(preCOSq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModelpreCOS)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between COS and GDP growth", subtitle = "Quarterly")
+  labs(title = "Pre-whitened Cross-correlation between consumer opinion surveys and GDP growth", subtitle = "Quarterly")
 p
+
+# #Examine lead-lag with CCF.TLP
+# preTLPq = ts_frequency(preTLP, to = "quarter", aggregate= "mean", na.rm = TRUE)
+# p = plotCCF(ts_ts(preTLPq), ts_ts(preGDP), lag.max = 15)
+# p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+#   labs(title = "Cross-correlation between TLP and GDP growth", subtitle = "Quarterly")
+# p
 
 # #Pre-whitening data. Lead of one quarter. Doesn't change after pre-whitening. Not useful to pre-whiten data? No correlation pre covid?
 # ModelpreTLP  = auto.arima(preTLPq, max.p = 5, max.q = 5, ic = c("bic"))
@@ -340,12 +347,6 @@ p
 #   labs(title = "Pre-whitened Cross-correlation between TLP and GDP growth", subtitle = "Quarterly")
 # p
 # 
-# #Examine lead-lag with CCF. SP
-# preSPq = ts_frequency(preSP, to = "quarter", aggregate= "mean", na.rm = TRUE)
-# p = plotCCF(ts_ts(preSPq), ts_ts(preGDP), lag.max = 15)
-# p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-#   labs(title = "Cross-correlation between SP and GDP growth", subtitle = "Quarterly")
-# p
 
 # #Examine lead-lag with CCF.TM
 # dTMq = ts_frequency(dTM, to = "quarter", aggregate= "mean", na.rm = TRUE)
@@ -469,7 +470,7 @@ g = g + xlab("") +  ggtitle("CLI factor model and NBER recessions")
 g = ggLayout(g)
 g
 
-#Computing correlation between CLI and CLIf
+#Computing correlation between CLI and CLIf. High correlation normal?
 cor(CLI, CLIf)
 
 # Compare indicator with App3's indicator
@@ -488,6 +489,10 @@ g1 = ts_ggplot(
 g1 = ggLayout(g1)
 g1
 
+#In-Sample evaluation
 
-
-
+#Regressing GDP growth on indicator
+CLIq = ts_frequency(CLI, to = "quarter", aggregate= "mean", na.rm = T)
+CLIq = ts_span(CLIq, end = "2021-07-01")
+lmCLI = lm(GDP ~ CLIq) 
+summary(lmCLI) 
