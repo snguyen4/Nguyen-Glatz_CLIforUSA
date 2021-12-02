@@ -130,6 +130,8 @@ ts_ggplot(ts_pc(TCS))
 EPUI = ts_frequency(EPUI, to = "month", aggregate = "mean", na.rm = TRUE)
 EPUI = seas(ts_ts(EPUI))
 EPUI = trend(EPUI)
+EPUI = as.xts(EPUI)
+EPUI = ts_frequency(EPUI, to = "month", aggregate = "mean", na.rm = TRUE) #Just for the date format
 
 ts_ggplot(EPUI) +
   labs(title = "Economic Policy Uncertainty Index for United States", subtitle = "Seasonally adjusted")
@@ -138,6 +140,8 @@ ts_ggplot(EPUI) +
 VIX = ts_frequency(VIX, to = "month", aggregate = "mean", na.rm = TRUE)
 VIX = seas(ts_ts(VIX))
 VIX = trend(VIX)
+VIX = as.xts(VIX)
+VIX = ts_frequency(VIX, to = "month", aggregate = "mean", na.rm = TRUE) #Just for the date format
 
 ts_ggplot(VIX) +
   labs(title = "CBOE Volatility Index: VIX", subtitle = "Seasonally adjusted")
@@ -146,6 +150,8 @@ ts_ggplot(VIX) +
 OAS = ts_frequency(OAS, to = "month", aggregate = "mean", na.rm = TRUE)
 OAS = seas(ts_ts(OAS))
 OAS = trend(OAS)
+OAS = as.xts(OAS)
+OAS = ts_frequency(OAS, to = "month", aggregate = "mean", na.rm = TRUE) #Just for the date format
 
 ts_ggplot(OAS) +
   labs(title = "ICE BofA US High Yield Index Option-Adjusted Spread", subtitle = "Seasonally adjusted")
@@ -154,12 +160,15 @@ ts_ggplot(OAS) +
 STFLI2 = ts_frequency(STFLI2, to = "month", aggregate = "mean", na.rm = TRUE)
 STFLI2 = seas(ts_ts(STFLI2))
 STFLI2 = trend(STFLI2)
+STFLI2 = as.xts(STFLI2)
+STFLI2 = ts_frequency(STFLI2, to = "month", aggregate = "mean", na.rm = TRUE) #Just for the date format
 
 ts_ggplot(STFLI2) +
   labs(title = "St. Louis Fed Financial Stress Index", subtitle = "Seasonally adjusted")
 
 #Shortening all series to start in xxxx-xx-xx
-myStart = "1996-12-31"
+#OAS start on 31-12-1996
+myStart = "1997-01-01"
 
 IP  = ts_span(IP, start = myStart)
 GDP  = ts_span(GDP, start = myStart)
@@ -168,6 +177,10 @@ SP = ts_span(SP, start = myStart)
 BTS = ts_span(BTS, start = myStart)
 TCS = ts_span(TCS, start = myStart)
 COS = ts_span(COS, start = myStart)
+EPUI = ts_span(EPUI, start = myStart)
+VIX = ts_span(VIX, start = myStart)
+OAS = ts_span(OAS, start = myStart)
+STFLI2 = ts_span(STFLI2, start = myStart)
 
 #Pre-COVID
 preCovid = "2019-12-01"
@@ -176,6 +189,10 @@ preSP = ts_span(SP, end = preCovid)
 preBTS = ts_span(BTS, end = preCovid)
 preTCS = ts_span(TCS, end = preCovid)
 preCOS = ts_span(COS, end = preCovid)
+preEPUI = ts_span(EPUI, end = preCovid)
+preVIX = ts_span(VIX, end = preCovid)
+preOAS = ts_span(OAS, end = preCovid)
+preSTFLI2 = ts_span(STFLI2, end = preCovid)
 
 # From http://www.nber.org/cycles.html
 NBERREC = read.table(textConnection(
@@ -241,13 +258,16 @@ summary(uRootTCSd)
 
 #Making series stationary
 dIP = ts_diff(log(IP))
-ts_ggplot(dIP)
+ts_ggplot(dIP) +
+  labs(title = "Industrial production", subtitle = "Log differences")
 
 dPCE = ts_diff(log(PCE))
-ts_ggplot(dPCE)
+ts_ggplot(dPCE) +
+  labs(title = "Personal consumption expenditures", subtitle = "Log differences")
 
 dTCS = ts_diff(log(TCS))
-ts_ggplot(dTCS)
+ts_ggplot(dTCS) +
+  labs(title = "Total construction spending", subtitle = "Log differences")
 
 #PreCovid
 predIP = ts_span(dIP, end = preCovid)
@@ -257,14 +277,14 @@ predTCS = ts_span(dTCS, end = preCovid)
 #4) CCF and pre-whitening ------------------------------------------------------
 #-------------------------------------------------------------------------------
 
-#Examine lead-lag with CCF. IP
-predIPq = ts_frequency(predIP, to = "quarter", aggregate= "mean", na.rm = TRUE)
+#Examine lead-lag with CCF. Industrial production.
+predIPq = ts_frequency(predIP, to = "quarter", aggregate = "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(predIPq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Cross-correlation between industrial production and GDP growth", subtitle = "Quarterly")
 p
 
-#Pre-whitening data. Lead of one quarter. Changes if start date changes. Lagging if 1992.
+#Pre-whitening data. Lead of one quarter.
 ModelpreGDP = auto.arima(preGDP, max.p = 5, max.q = 5, ic = c("bic"))
 ModelpredIP  = auto.arima(predIPq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModelpredIP)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
@@ -272,14 +292,14 @@ p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between industrial production and GDP growth", subtitle = "Quarterly")
 p
 
-#Examine lead-lag with CCF.PCE
+#Examine lead-lag with CCF.Personal consumption expenditures.
 predPCEq = ts_frequency(predPCE, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(predPCEq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Cross-correlation between personal consumption rxpenditures and GDP growth", subtitle = "Quarterly")
 p
 
-#Pre-whitening data. Lead of one quarter. Leading one quarter. Doesn't change after pre-whitening.
+#Pre-whitening data. Lead of one quarter. Leading one quarter. If the start date is in in 1980, it is definitely leading.
 ModelpredPCE  = auto.arima(predPCEq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModelpredPCE)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
@@ -293,7 +313,7 @@ p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Cross-correlation between share prices and GDP growth", subtitle = "Quarterly")
 p
 
-#Pre-whitening data. Leading 1 quarter.
+#Pre-whitening data. Leading 1 quarter. Changes if date starts in 1997 instead of 1980. Leading by 8 quarters
 ModelpreSP  = auto.arima(preSPq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModelpreSP)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
@@ -307,7 +327,7 @@ p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Cross-correlation between business tendency surveys for manufacturing and GDP growth", subtitle = "Quarterly")
 p
 
-#Pre-whitening data. Leading 1 quarter.
+#Pre-whitening data. Leading 1 quarter. lagging by 7 quarters (1997 start)
 ModelpreBTS  = auto.arima(preBTSq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModelpreBTS)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
@@ -321,7 +341,7 @@ p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Cross-correlation between total construction spending and GDP growth", subtitle = "Quarterly")
 p
 
-#Pre-whitening data.No correlation.
+#Pre-whitening data.No correlation if date starts in 1980. Leading of 9 quarters if date starts in 1997.
 predModelTCS  = auto.arima(predTCSq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(predModelTCS)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
@@ -335,12 +355,69 @@ p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Cross-correlation between consumer opinion surveys and GDP growth", subtitle = "Quarterly")
 p
 
-#Pre-whitening data. Leading one quarter
+#Pre-whitening data. Leading one quarter if it starts in 1980. Lead of 8 quarters if starting in 1997.
 ModelpreCOS  = auto.arima(preCOSq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModelpreCOS)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
   labs(title = "Pre-whitened Cross-correlation between consumer opinion surveys and GDP growth", subtitle = "Quarterly")
 p
+
+#Examine lead-lag with CCF. EPUI
+preEPUIq = ts_frequency(preEPUI, to = "quarter", aggregate= "mean", na.rm = TRUE)
+p = plotCCF(ts_ts(preEPUIq), ts_ts(preGDP), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Cross-correlation between Economic Policy Uncertainty Index for United States and GDP growth", subtitle = "Quarterly")
+p
+
+#Pre-whitening data. No correlation
+ModelpreEPUI  = auto.arima(preEPUIq, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(ModelpreEPUI)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Pre-whitened Cross-correlation between Economic Policy Uncertainty Index for United States and GDP growth", subtitle = "Quarterly")
+p
+
+#Examine lead-lag with CCF. VIX
+preVIXq = ts_frequency(preVIX, to = "quarter", aggregate= "mean", na.rm = TRUE)
+p = plotCCF(ts_ts(preVIXq), ts_ts(preGDP), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Cross-correlation between CBOE Volatility Index: VIX and GDP growth", subtitle = "Quarterly")
+p
+
+#Pre-whitening data. lagging 2 quarters.
+ModelpreVIX  = auto.arima(preVIXq, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(ModelpreVIX)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Pre-whitened Cross-correlation between CBOE Volatility Index: VIX and GDP growth", subtitle = "Quarterly")
+p
+
+#Examine lead-lag with CCF. OAS
+preOASq = ts_frequency(preOAS, to = "quarter", aggregate= "mean", na.rm = TRUE)
+p = plotCCF(ts_ts(preOASq), ts_ts(preGDP), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Cross-correlation between ICE BofA US High Yield Index Option-Adjusted Spread and GDP growth", subtitle = "Quarterly")
+p
+
+#Pre-whitening data. Leading 1 quarter.
+ModelpreOAS  = auto.arima(preOASq, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(ModelpreOAS)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Pre-whitened Cross-correlation between ICE BofA US High Yield Index Option-Adjusted Spread and GDP growth", subtitle = "Quarterly")
+p
+
+#Examine lead-lag with CCF. STFLI2
+preSTFLI2q = ts_frequency(preSTFLI2, to = "quarter", aggregate= "mean", na.rm = TRUE)
+p = plotCCF(ts_ts(preSTFLI2q), ts_ts(preGDP), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Cross-correlation between St. Louis Fed Financial Stress Index and GDP growth", subtitle = "Quarterly")
+p
+
+#Pre-whitening data. Lagging 2 quarters.
+ModelpreSTFLI2  = auto.arima(preSTFLI2q, max.p = 5, max.q = 5, ic = c("bic"))
+p = plotCCF(ts_ts(resid(ModelpreSTFLI2)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Pre-whitened Cross-correlation between St. Louis Fed Financial Stress Index and GDP growth", subtitle = "Quarterly")
+p
+
 
 #5) Transformation for CLI------------------------------------------------------
 #-------------------------------------------------------------------------------
