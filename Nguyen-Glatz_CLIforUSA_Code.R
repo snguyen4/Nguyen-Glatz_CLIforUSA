@@ -53,10 +53,6 @@ SP = xts(SP[, 3], order.by = as.Date(SP[, 2]))
 BTS = ts_fred("BSCICP02USM460S")
 BTS = xts(BTS[, 3], order.by = as.Date(BTS[, 2]))
 
-# #Total construction spending
-# TCS = ts_fred("TTLCONS")
-# TCS = xts(TCS[, 3], order.by = as.Date(TCS[, 2]))
-
 #Consumer Opinion Surveys: Confidence Indicators: Composite Indicators: OECD Indicator for the United States
 COS = ts_fred("CSCICP03USM665S")
 COS = xts(COS[, 3], order.by = as.Date(COS[, 2]))
@@ -214,7 +210,6 @@ ts_ggplot(dPCE) +
 #PreCovid
 predIP = ts_span(dIP, end = preCovid)
 predPCE = ts_span(dPCE, end = preCovid)
-# predTCS = ts_span(dTCS, end = preCovid)
 
 #4) CCF and pre-whitening ------------------------------------------------------
 #-------------------------------------------------------------------------------
@@ -446,7 +441,7 @@ g2 = ts_ggplot(
   title = "Comparison between leading indicators: Simple Average",
   subtitle = "Normalized"
 )
-g2 = ggLayout(g2)
+g2 = ggLayout(g2)+ geom_rect(data = NBERREC, aes(xmin = Peak, xmax = Trough, ymin = -Inf, ymax = +Inf), fill = "grey", alpha = 0.5)
 g2
 
 #Comparing CLIs. Factor model
