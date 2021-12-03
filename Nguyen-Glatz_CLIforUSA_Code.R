@@ -439,11 +439,11 @@ g1 = ts_ggplot(
 g1 = ggLayout(g1)
 g1
 
-#Comparing CLIs. Sample average
+#Comparing CLIs. Simple average
 g2 = ts_ggplot(
   "CLI average" =  normalize(CLI),
   "CLIApp3 average" = normalize(CLIApp3),
-  title = "Comparison between leading indicators",
+  title = "Comparison between leading indicators: Simple Average",
   subtitle = "Normalized"
 )
 g2 = ggLayout(g2)
@@ -453,20 +453,20 @@ g2
 g3 = ts_ggplot(
   "CLI factor" =  normalize(CLIf), 
   "CLIApp3 factor" = normalize(CLIfApp3),
-  title = "Comparison between leading indicators",
+  title = "Comparison between leading indicators: Factor Model",
   subtitle = "Normalized"
 )
 g3 = ggLayout(g3)
 g3
 
 #In-Sample evaluation ----------------------------------------------------------
-#Regressing GDP growth on indicator. Sample average.
+#Regressing GDP growth on indicator. Simple average.
 CLIq = ts_frequency(CLI, to = "quarter", aggregate= "mean", na.rm = T)
 CLIq = ts_span(CLIq, end = "2021-07-01")
 lmCLI = lm(GDP ~ CLIq) 
 summary(lmCLI) 
 
-#Regressing GDP growth on App3 indicator. Sample average.
+#Regressing GDP growth on App3 indicator. Simple average.
 CLIApp3q = ts_frequency(CLIApp3, to = "quarter", aggregate= "mean", na.rm = T)
 CLIApp3q = ts_span(CLIApp3q, start = "1990-01-01", end = "2021-07-01")
 lmCLIApp3 = lm(GDP ~ CLIApp3q) 
