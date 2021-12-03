@@ -441,7 +441,7 @@ g2 = ts_ggplot(
   title = "Comparison between leading indicators: Simple Average",
   subtitle = "Normalized"
 )
-g2 = ggLayout(g2)+ geom_rect(data = NBERREC, aes(xmin = Peak, xmax = Trough, ymin = -Inf, ymax = +Inf), fill = "grey", alpha = 0.5)
+g2 = ggLayout(g2)
 g2
 
 #Comparing CLIs. Factor model
