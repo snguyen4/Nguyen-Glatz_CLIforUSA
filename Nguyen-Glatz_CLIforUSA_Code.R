@@ -352,18 +352,22 @@ p
 
 # Summary. Not really sure for publication-
 # Indicator     Lead/lag      Cyclicality   Publication     Notes
-# Industrial P. Lead 1Q       Pro           Immediate       None
-# PCE           Lead 1Q       Pro           Immediate       None
-# Share Prices  Lead 1Q       Pro           Immediate       None
-# B.T survey    Lead 1Q       Pro           Immediate       None
-# Cons. Os. S.  Lead 1Q       Pro           Immediate       None
+# Industrial P. Coincident    Pro           -               None
+# PCE           Coincident    Pro           -               None
+# Share Prices  Lead 1Q       Pro           -               Lag 1Q to match GDP growth
+# B.T survey    Coincident    Pro           -               None
+# Cons. Op. S.  Coincident    Pro           -               None
+# EPUI          Coincident    Counter       -               Multiply by -1
+# VIX           Coincident    COunter       -               Multiply by -1
 
 #Transforming to monthly
 IPm = lag(ts_frequency(dIP, to = "month", aggregate= "mean", na.rm = T), 0)    
 PCEm = lag(ts_frequency(dPCE, to = "month", aggregate= "mean", na.rm = T), 0)
-SPm = lag(ts_frequency(SP, to = "month", aggregate= "mean", na.rm = T), 0)
+SPm = lag(ts_frequency(SP, to = "month", aggregate= "mean", na.rm = T), 3)
 BTSm = lag(ts_frequency(BTS, to = "month", aggregate= "mean", na.rm = T), 0)
 COSm = lag(ts_frequency(COS, to = "month", aggregate = "mean", na.rm = T), 0)
+EPUIm = -1 * lag(ts_frequency(EPUI, to = "month", aggregate = "mean", na.rm = T), 0)
+VIXm = -1 * lag(ts_frequency(VIX, to = "month", aggregate = "mean", na.rm = T), 0)
 
 #Normalize everything
 IPm = normalize(IPm)
@@ -371,6 +375,8 @@ PCEm = normalize(PCEm)
 BTSm = normalize(BTSm)
 SPm = normalize(SPm)
 COSm = normalize(COSm)
+EPUIm = normalize(EPUIm)
+VIXm = normalize(VIXm)
 
 p = ts_ggplot(
   "Industrial Production" = IPm,
@@ -378,6 +384,8 @@ p = ts_ggplot(
   "Share Prices" = SPm,
   "Business Tendency Surveys: Manufacturing" = BTSm,
   "Consumer Opinion Surveys" = COSm,
+  "Economic Policy Uncertainty Index for United States" = EPUIm,
+  "CBOE Votality Index: VIX" = VIXm,
   title = "Selection of indicators",
   subtitle = "monthly, normalized"
 )
@@ -385,8 +393,8 @@ p = ggLayout(p)
 p
 
 #Computing equally weighted indicator
-CLI = rowSums(cbind(IPm, PCEm, BTSm, SPm, COSm), na.rm = T)/5
-Dates = seq(as.Date("1980-01-01"), length = length(CLI), by = "months")
+CLI = rowSums(cbind(IPm, PCEm, BTSm, SPm, COSm, EPUIm, VIXm), na.rm = T)/7
+Dates = seq(as.Date("1990-01-01"), length = length(CLI), by = "months")
 CLI = xts(CLI, order.by = Dates)
 
 g = ggplot(CLI) + geom_line(aes(x = index(CLI), y = CLI)) + theme_minimal()
@@ -400,7 +408,7 @@ g
 #-------------------------------------------------------------------------------
 
 #Principal component analysis
-X = cbind(IPm, PCEm, BTSm, SPm, COSm)
+X = cbind(IPm, PCEm, BTSm, SPm, COSm, EPUIm, VIXm)
 Ximp = imputePCA(as.matrix(X), ncp = 1)
 PCX = prcomp(Ximp$completeObs)
 CLIf = xts(PCX$x[,"PC1"], order.by = as.Date(index(X)))
@@ -412,7 +420,7 @@ g = g + xlab("") +  ggtitle("CLI factor model and NBER recessions")
 g = ggLayout(g)
 g
 
-#Computing correlation between CLI and CLIf. High correlation normal?
+#Computing correlation between CLI and CLIf.
 cor(CLI, CLIf)
 
 # Compare indicator with App3's indicator
@@ -431,17 +439,48 @@ g1 = ts_ggplot(
 g1 = ggLayout(g1)
 g1
 
-#In-Sample evaluation
+#Comparing CLIs. Sample average
+g2 = ts_ggplot(
+  "CLI average" =  normalize(CLI),
+  "CLIApp3 average" = normalize(CLIApp3),
+  title = "Comparison between leading indicators",
+  subtitle = "Normalized"
+)
+g2 = ggLayout(g2)
+g2
 
-#Regressing GDP growth on indicator
+#Comparing CLIs. Factor model
+g3 = ts_ggplot(
+  "CLI factor" =  normalize(CLIf), 
+  "CLIApp3 factor" = normalize(CLIfApp3),
+  title = "Comparison between leading indicators",
+  subtitle = "Normalized"
+)
+g3 = ggLayout(g3)
+g3
+
+#In-Sample evaluation ----------------------------------------------------------
+#Regressing GDP growth on indicator. Sample average.
 CLIq = ts_frequency(CLI, to = "quarter", aggregate= "mean", na.rm = T)
 CLIq = ts_span(CLIq, end = "2021-07-01")
 lmCLI = lm(GDP ~ CLIq) 
 summary(lmCLI) 
 
-#Regressing GDP growth on App3 indicator
+#Regressing GDP growth on App3 indicator. Sample average.
 CLIApp3q = ts_frequency(CLIApp3, to = "quarter", aggregate= "mean", na.rm = T)
-CLIApp3q = ts_span(CLIApp3q, end = "2021-07-01")
+CLIApp3q = ts_span(CLIApp3q, start = "1990-01-01", end = "2021-07-01")
 lmCLIApp3 = lm(GDP ~ CLIApp3q) 
 summary(lmCLIApp3) 
+
+#Regressing GDP growth on indicator. Factor model.
+CLIfq = ts_frequency(CLIf, to = "quarter", aggregate= "mean", na.rm = T)
+CLIfq = ts_span(CLIfq, end = "2021-07-01")
+lmCLIf = lm(GDP ~ CLIfq) 
+summary(lmCLIf) 
+
+#Regressing GDP growth on App3 indicator. Factor model.
+CLIfApp3q = ts_frequency(CLIfApp3, to = "quarter", aggregate= "mean", na.rm = T)
+CLIfApp3q = ts_span(CLIfApp3q, start = "1990-01-01", end = "2021-07-01")
+lmCLIfApp3 = lm(GDP ~ CLIfApp3q) 
+summary(lmCLIfApp3) 
 
