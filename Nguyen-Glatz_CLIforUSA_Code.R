@@ -68,23 +68,23 @@ VIX = xts(VIX[, 3], order.by =  as.Date(VIX[, 2]))
 #Initial Plotting
 #Plotting Industrial Production. We can see that it is not stationary
 ts_ggplot(log(IP)) +
-  labs(title = "Industrial production")
+  labs(title = "Industrial Production")
  
 #Plotting Personal Consumption Expenditures
 ts_ggplot(log(PCE)) +
-  labs(title = "Personal consumption xpenditure")
+  labs(title = "Personal Consumption Ependiture")
 
 #Plotting SP
 ts_ggplot(SP) +
-  labs(title = "Share prices")
+  labs(title = "Share Prices")
 
 #Plotting BTS
 ts_ggplot(BTS) +
-  labs(title = "Business tendency surveys: Manufacturing")
+  labs(title = "Business Tendency Surveys: Manufacturing")
 
 #Plotting COS
 ts_ggplot(COS) +
-  labs(title = "Consumer opinion surveys")
+  labs(title = "Consumer Opinion Surveys")
 
 #Plotting EPUI. Not seasonally adjusted.
 ts_ggplot(EPUI) +
@@ -218,7 +218,7 @@ predPCE = ts_span(dPCE, end = preCovid)
 predIPq = ts_frequency(predIP, to = "quarter", aggregate = "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(predIPq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Cross-correlation between industrial production and GDP growth", subtitle = "Quarterly")
+  labs(title = "Cross-correlation between Industrial Production and GDP Growth", subtitle = "Quarterly")
 p
 
 #Coincident or leading. not very clear because of autocorrelation
@@ -228,7 +228,7 @@ ModelpreGDP = auto.arima(preGDP, max.p = 5, max.q = 5, ic = c("bic"))
 ModelpredIP  = auto.arima(predIPq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModelpredIP)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between industrial production and GDP growth", subtitle = "Quarterly")
+  labs(title = "Pre-whitened Cross-correlation between Industrial Production and GDP Growth", subtitle = "Quarterly")
 p
 
 #Concurrent and leading by one quarter. Pro-cyclical indicator.
@@ -237,7 +237,7 @@ p
 predPCEq = ts_frequency(predPCE, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(predPCEq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Cross-correlation between personal consumption rxpenditures and GDP growth", subtitle = "Quarterly")
+  labs(title = "Cross-correlation between Personal Consumption Expenditures and GDP Growth", subtitle = "Quarterly")
 p
 
 #Coincident indicator
@@ -246,7 +246,7 @@ p
 ModelpredPCE  = auto.arima(predPCEq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModelpredPCE)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between personal consumption expenditures and GDP growth", subtitle = "Quarterly")
+  labs(title = "Pre-whitened Cross-correlation between Personal Consumption Expenditures and GDP Growth", subtitle = "Quarterly")
 p
 
 #Coincident and lead of one quarter. Pro-cyclical indicator.
@@ -255,7 +255,7 @@ p
 preSPq = ts_frequency(preSP, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(preSPq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Cross-correlation between share prices and GDP growth", subtitle = "Quarterly")
+  labs(title = "Cross-correlation between Share Prices and GDP Growth", subtitle = "Quarterly")
 p
 
 #coincident indicator. Could be leading or lagging.
@@ -264,7 +264,7 @@ p
 ModelpreSP  = auto.arima(preSPq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModelpreSP)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between share prices and GDP growth", subtitle = "Quarterly")
+  labs(title = "Pre-whitened Cross-correlation between Share Prices and GDP Growth", subtitle = "Quarterly")
 p
 
 #Coincident and lead of one quarter. S = -1 is higher, so we will lag it by 3 months. Pro-cyclical indicator.
@@ -273,7 +273,7 @@ p
 preBTSq = ts_frequency(preBTS, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(preBTSq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Cross-correlation between business tendency surveys for manufacturing and GDP growth", subtitle = "Quarterly")
+  labs(title = "Cross-correlation between Business Tendency Surveys for Manufacturing and GDP Growth", subtitle = "Quarterly")
 p
 
 #Coincident, maybe lagging.
@@ -282,7 +282,7 @@ p
 ModelpreBTS  = auto.arima(preBTSq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModelpreBTS)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between business tendency surveys for manufacturing and GDP growth", subtitle = "Quarterly")
+  labs(title = "Pre-whitened Cross-correlation between Business Tendency Surveys for Manufacturing and GDP Growth", subtitle = "Quarterly")
 p
 
 #It looks coincident, and slightly lagging, but barely. So we'll treat it as a coincident pro-cyclical indicator.
@@ -291,7 +291,7 @@ p
 preCOSq = ts_frequency(preCOS, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(preCOSq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Cross-correlation between consumer opinion surveys and GDP growth", subtitle = "Quarterly")
+  labs(title = "Cross-correlation between Consumer Opinion Surveys and GDP Growth", subtitle = "Quarterly")
 p
 
 #Coincident or maybe lagging.
@@ -300,7 +300,7 @@ p
 ModelpreCOS  = auto.arima(preCOSq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModelpreCOS)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between consumer opinion surveys and GDP growth", subtitle = "Quarterly")
+  labs(title = "Pre-whitened Cross-correlation between Consumer Opinion surveys and GDP Growth", subtitle = "Quarterly")
 p
 
 #Coincident indicator, pro-cyclical.
@@ -309,7 +309,7 @@ p
 preEPUIq = ts_frequency(preEPUI, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(preEPUIq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Cross-correlation between Economic Policy Uncertainty Index for United States and GDP growth", subtitle = "Quarterly")
+  labs(title = "Cross-correlation between Economic Policy Uncertainty Index for United States and GDP Growth", subtitle = "Quarterly")
 p
 
 #Counter-cyclical, maybe lagging.
@@ -318,7 +318,7 @@ p
 ModelpreEPUI  = auto.arima(preEPUIq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModelpreEPUI)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between Economic Policy Uncertainty Index for United States and GDP growth", subtitle = "Quarterly")
+  labs(title = "Pre-whitened Cross-correlation between Economic Policy Uncertainty Index for United States and GDP Growth", subtitle = "Quarterly")
 p
 
 #Counter-cyclical coincident indicator, barely lagging.
@@ -327,7 +327,7 @@ p
 preVIXq = ts_frequency(preVIX, to = "quarter", aggregate= "mean", na.rm = TRUE)
 p = plotCCF(ts_ts(preVIXq), ts_ts(preGDP), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Cross-correlation between CBOE Volatility Index: VIX and GDP growth", subtitle = "Quarterly")
+  labs(title = "Cross-correlation between CBOE Volatility Index: VIX and GDP Growth", subtitle = "Quarterly")
 p
 
 #Counter-cyclical, coincident, not clear.
@@ -336,7 +336,7 @@ p
 ModelpreVIX  = auto.arima(preVIXq, max.p = 5, max.q = 5, ic = c("bic"))
 p = plotCCF(ts_ts(resid(ModelpreVIX)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
 p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between CBOE Volatility Index: VIX and GDP growth", subtitle = "Quarterly")
+  labs(title = "Pre-whitened Cross-correlation between CBOE Volatility Index: VIX and GDP Growth", subtitle = "Quarterly")
 p
 
 #Coincident, counter cyclical with a lag of 2 quarters. Will be treated as a coincident counter-cyclical indicator.
@@ -395,7 +395,7 @@ CLI = xts(CLI, order.by = Dates)
 g = ggplot(CLI) + geom_line(aes(x = index(CLI), y = CLI)) + theme_minimal()
 g = g + geom_rect(data=NBERREC, aes(xmin = Peak, xmax = Trough, ymin = -Inf, ymax = +Inf), fill ="grey", alpha = 0.5)
 g = g + geom_hline(yintercept = 0, linetype = "dashed", color = "red")
-g = g + xlab("") +  ggtitle("CLI simple average and NBER recessions")
+g = g + xlab("") +  ggtitle("CLI Simple Average and NBER Recessions")
 g = ggLayout(g)
 g
 
@@ -411,7 +411,7 @@ CLIf = xts(PCX$x[,"PC1"], order.by = as.Date(index(X)))
 g = ggplot(CLIf) + geom_line(aes(x = index(CLIf), y = CLIf))
 g = g + geom_rect(data = NBERREC, aes(xmin = Peak, xmax = Trough, ymin = -Inf, ymax = +Inf), fill = "grey", alpha = 0.5)
 g = g + geom_hline(yintercept = 0, linetype = "dashed", color = "red")
-g = g + xlab("") +  ggtitle("CLI factor model and NBER recessions")
+g = g + xlab("") +  ggtitle("CLI Factor Model and NBER Recessions")
 g = ggLayout(g)
 g
 
@@ -428,7 +428,7 @@ g1 = ts_ggplot(
   "CLI factor" =  normalize(CLIf), 
   "CLIApp3 average" = normalize(CLIApp3),
   "CLIApp3 factor" = normalize(CLIfApp3),
-  title = "Comparison between leading indicators",
+  title = "Comparison between Leading Indicators",
   subtitle = "Normalized"
 )
 g1 = ggLayout(g1)
@@ -438,7 +438,7 @@ g1
 g2 = ts_ggplot(
   "CLI average" =  normalize(CLI),
   "CLIApp3 average" = normalize(CLIApp3),
-  title = "Comparison between leading indicators: Simple Average",
+  title = "Comparison between Leading Indicators: Simple Average",
   subtitle = "Normalized"
 )
 g2 = ggLayout(g2)
@@ -448,7 +448,7 @@ g2
 g3 = ts_ggplot(
   "CLI factor" =  normalize(CLIf), 
   "CLIApp3 factor" = normalize(CLIfApp3),
-  title = "Comparison between leading indicators: Factor Model",
+  title = "Comparison between Leading Indicators: Factor Model",
   subtitle = "Normalized"
 )
 g3 = ggLayout(g3)
