@@ -454,7 +454,11 @@ g3 = ts_ggplot(
 g3 = ggLayout(g3)
 g3
 
-#In-Sample evaluation ----------------------------------------------------------
+#7) In-Sample evaluation -------------------------------------------------------
+#-------------------------------------------------------------------------------
+
+#Linear regression and comparing r^2--------------------------------------------
+
 #Regressing GDP growth on indicator. Simple average.
 CLIq = ts_frequency(CLI, to = "quarter", aggregate= "mean", na.rm = T)
 CLIq = ts_span(CLIq, end = "2021-07-01")
@@ -478,4 +482,27 @@ CLIfApp3q = ts_frequency(CLIfApp3, to = "quarter", aggregate= "mean", na.rm = T)
 CLIfApp3q = ts_span(CLIfApp3q, start = "1990-01-01", end = "2021-07-01")
 lmCLIfApp3 = lm(GDP ~ CLIfApp3q) 
 summary(lmCLIfApp3) 
+
+#Cross-correlation test---------------------------------------------------------
+
+#Simple average
+ModelCLIq  = auto.arima(CLIq, max.p = 5, max.q = 5, ic = c("bic"))
+ModelCLIApp3q  = auto.arima(CLIApp3q, max.p = 5, max.q = 5, ic = c("bic"))
+
+p = plotCCF(ts_ts(resid(ModelCLIq)), ts_ts(resid(ModelCLIApp3q)), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), CLIApp3(t)") +
+  labs(title = "Pre-whitened Cross-correlation between CLI and App3's CLI: Simple Average", subtitle = "Quarterly")
+p
+
+#Factor model
+ModelCLIfq  = auto.arima(CLIfq, max.p = 5, max.q = 5, ic = c("bic"))
+ModelCLIfApp3q  = auto.arima(CLIfApp3q, max.p = 5, max.q = 5, ic = c("bic"))
+
+p = plotCCF(ts_ts(resid(ModelCLIfq)), ts_ts(resid(ModelCLIfApp3q)), lag.max = 15)
+p = ggLayout(p)+ ylab("Cross correlation X(t+s), CLIApp3(t)") +
+  labs(title = "Pre-whitened Cross-correlation between CLIf and App3's CLIf: Factor Model", subtitle = "Quarterly")
+p
+
+
+
 
