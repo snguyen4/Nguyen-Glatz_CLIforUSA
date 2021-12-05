@@ -16,6 +16,7 @@ library(xts)
 library(CADFtest) 
 library(seasonal)
 library(missMDA)
+library(ggpubr)
 
 #Loading Prof. Kaufamann packages
 source("UserPackages.R")
@@ -226,10 +227,10 @@ p
 #Pre-whitening data. 
 ModelpreGDP = auto.arima(preGDP, max.p = 5, max.q = 5, ic = c("bic"))
 ModelpredIP  = auto.arima(predIPq, max.p = 5, max.q = 5, ic = c("bic"))
-p = plotCCF(ts_ts(resid(ModelpredIP)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
-p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between Industrial Production and GDP Growth", subtitle = "Quarterly")
-p
+p1 = plotCCF(ts_ts(resid(ModelpredIP)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
+p1 = ggLayout(p1)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Industrial Production", subtitle = "Quarterly")
+p1
 
 #Concurrent and leading by one quarter. Pro-cyclical indicator.
 
@@ -242,12 +243,12 @@ p
 
 #Coincident indicator
 
-#Pre-whitening data. L
+#Pre-whitening data. 
 ModelpredPCE  = auto.arima(predPCEq, max.p = 5, max.q = 5, ic = c("bic"))
-p = plotCCF(ts_ts(resid(ModelpredPCE)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
-p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between Personal Consumption Expenditures and GDP Growth", subtitle = "Quarterly")
-p
+p2 = plotCCF(ts_ts(resid(ModelpredPCE)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
+p2 = ggLayout(p2)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Personal Consumption Expenditures", subtitle = "Quarterly")
+p2
 
 #Coincident and lead of one quarter. Pro-cyclical indicator.
 
@@ -262,10 +263,10 @@ p
 
 #Pre-whitening data.
 ModelpreSP  = auto.arima(preSPq, max.p = 5, max.q = 5, ic = c("bic"))
-p = plotCCF(ts_ts(resid(ModelpreSP)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
-p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between Share Prices and GDP Growth", subtitle = "Quarterly")
-p
+p3 = plotCCF(ts_ts(resid(ModelpreSP)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
+p3 = ggLayout(p3)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Share Prices", subtitle = "Quarterly")
+p3
 
 #Coincident and lead of one quarter. S = -1 is higher, so we will lag it by 3 months. Pro-cyclical indicator.
 
@@ -278,12 +279,12 @@ p
 
 #Coincident, maybe lagging.
 
-#Pre-whitening data. Leading 1 quarter. lagging by 7 quarters (1997 start)
+#Pre-whitening data. 
 ModelpreBTS  = auto.arima(preBTSq, max.p = 5, max.q = 5, ic = c("bic"))
-p = plotCCF(ts_ts(resid(ModelpreBTS)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
-p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between Business Tendency Surveys for Manufacturing and GDP Growth", subtitle = "Quarterly")
-p
+p4 = plotCCF(ts_ts(resid(ModelpreBTS)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
+p4 = ggLayout(p4)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Business Tendency Surveys", subtitle = "Quarterly")
+p4
 
 #It looks coincident, and slightly lagging, but barely. So we'll treat it as a coincident pro-cyclical indicator.
 
@@ -296,12 +297,12 @@ p
 
 #Coincident or maybe lagging.
 
-#Pre-whitening data. Leading one quarter if it starts in 1980. Lead of 8 quarters if starting in 1997.
+#Pre-whitening data. 
 ModelpreCOS  = auto.arima(preCOSq, max.p = 5, max.q = 5, ic = c("bic"))
-p = plotCCF(ts_ts(resid(ModelpreCOS)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
-p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between Consumer Opinion surveys and GDP Growth", subtitle = "Quarterly")
-p
+p5 = plotCCF(ts_ts(resid(ModelpreCOS)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
+p5 = ggLayout(p5)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Consumer Opinion Surveys", subtitle = "Quarterly")
+p5
 
 #Coincident indicator, pro-cyclical.
 
@@ -316,10 +317,10 @@ p
 
 #Pre-whitening data. 
 ModelpreEPUI  = auto.arima(preEPUIq, max.p = 5, max.q = 5, ic = c("bic"))
-p = plotCCF(ts_ts(resid(ModelpreEPUI)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
-p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between Economic Policy Uncertainty Index for United States and GDP Growth", subtitle = "Quarterly")
-p
+p6 = plotCCF(ts_ts(resid(ModelpreEPUI)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
+p6 = ggLayout(p6)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "Economic Policy Uncertainty Index", subtitle = "Quarterly")
+p6
 
 #Counter-cyclical coincident indicator, barely lagging.
 
@@ -334,12 +335,17 @@ p
 
 #Pre-whitening data. lagging 2 quarters.
 ModelpreVIX  = auto.arima(preVIXq, max.p = 5, max.q = 5, ic = c("bic"))
-p = plotCCF(ts_ts(resid(ModelpreVIX)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
-p = ggLayout(p)+ ylab("Cross correlation X(t+s), GDP(t)") +
-  labs(title = "Pre-whitened Cross-correlation between CBOE Volatility Index: VIX and GDP Growth", subtitle = "Quarterly")
-p
+p7 = plotCCF(ts_ts(resid(ModelpreVIX)), ts_ts(resid(ModelpreGDP)), lag.max = 15)
+p7 = ggLayout(p7)+ ylab("Cross correlation X(t+s), GDP(t)") +
+  labs(title = "CBOE Volatility Index: VIX", subtitle = "Quarterly")
+p7
 
 #Coincident, counter cyclical with a lag of 2 quarters. Will be treated as a coincident counter-cyclical indicator.
+
+#Grouping plots
+ggarrange(p1, p2, p3, p4, p5, p6, p7, 
+          labels = c("A", "B", "C", "D", "E", "F", "G"),
+          ncol = 2, nrow = 4)
 
 
 #5) Transformation for CLI------------------------------------------------------
@@ -489,20 +495,22 @@ summary(lmCLIfApp3)
 ModelCLIq  = auto.arima(CLIq, max.p = 5, max.q = 5, ic = c("bic"))
 ModelCLIApp3q  = auto.arima(CLIApp3q, max.p = 5, max.q = 5, ic = c("bic"))
 
-p = plotCCF(ts_ts(resid(ModelCLIq)), ts_ts(resid(ModelCLIApp3q)), lag.max = 15)
-p = ggLayout(p)+ ylab("Cross correlation X(t+s), CLIApp3(t)") +
-  labs(title = "Pre-whitened Cross-correlation between CLI and App3's CLI: Simple Average", subtitle = "Quarterly")
-p
+p8 = plotCCF(ts_ts(resid(ModelCLIq)), ts_ts(resid(ModelCLIApp3q)), lag.max = 15)
+p8 = ggLayout(p8)+ ylab("Cross correlation X(t+s), CLIApp3(t)") +
+  labs(title = "CLI: Simple Average", subtitle = "Quarterly")
+p8
 
 #Factor model
 ModelCLIfq  = auto.arima(CLIfq, max.p = 5, max.q = 5, ic = c("bic"))
 ModelCLIfApp3q  = auto.arima(CLIfApp3q, max.p = 5, max.q = 5, ic = c("bic"))
 
-p = plotCCF(ts_ts(resid(ModelCLIfq)), ts_ts(resid(ModelCLIfApp3q)), lag.max = 15)
-p = ggLayout(p)+ ylab("Cross correlation X(t+s), CLIApp3(t)") +
-  labs(title = "Pre-whitened Cross-correlation between CLIf and App3's CLIf: Factor Model", subtitle = "Quarterly")
-p
+p9 = plotCCF(ts_ts(resid(ModelCLIfq)), ts_ts(resid(ModelCLIfApp3q)), lag.max = 15)
+p9 = ggLayout(p9)+ ylab("Cross correlation X(t+s), CLIfApp3(t)") +
+  labs(title = "CLI: Factor Model", subtitle = "Quarterly")
+p9
 
-
+ggarrange(p8, p9, 
+          labels = c("A", "B"),
+          ncol = 2, nrow = 1)
 
 
