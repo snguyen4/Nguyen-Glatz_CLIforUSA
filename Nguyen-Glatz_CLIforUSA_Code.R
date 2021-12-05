@@ -18,12 +18,8 @@ library(seasonal)
 library(missMDA)
 library(ggpubr)
 
-#Loading Prof. Kaufamann packages
+#Loading Prof. Kaufmann packages
 source("UserPackages.R")
-
-#To save files + graphs
-mainDir = getwd()
-outDir = makeOutDir(mainDir, "/ResultsCLIforUSA")
 
 #2) Loading data/Data transformation -------------------------------------------
 #-------------------------------------------------------------------------------
@@ -509,6 +505,7 @@ p9 = ggLayout(p9)+ ylab("Cross correlation X(t+s), CLIfApp3(t)") +
   labs(title = "CLI: Factor Model", subtitle = "Quarterly")
 p9
 
+#CCF plots: grouped
 ggarrange(p8, p9, 
           labels = c("A", "B"),
           ncol = 2, nrow = 1)
